@@ -1,6 +1,6 @@
 'use client'
 
-import { Bell, Search, User, ChevronDown } from 'lucide-react'
+import { Bell, Search, ChevronDown } from 'lucide-react'
 
 interface HeaderProps {
   title: string

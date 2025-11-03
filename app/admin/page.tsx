@@ -1,11 +1,9 @@
 'use client'
 
-import { useState } from 'react'
 import Header from '@/components/dashboard/Header'
 import StatCard from '@/components/dashboard/StatCard'
 import { 
   Building2, 
-  Users, 
   FileText, 
   CheckCircle,
   TrendingUp,

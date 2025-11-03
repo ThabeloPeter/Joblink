@@ -7,7 +7,6 @@ import {
   ClipboardList, 
   CheckCircle, 
   Clock,
-  AlertCircle,
   TrendingUp
 } from 'lucide-react'
 
