@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import Header from '@/components/dashboard/Header'
 import { ClipboardList, Plus, Search, Calendar, MapPin, User } from 'lucide-react'
+import CreateJobCardModal from '@/components/modals/CreateJobCardModal'
+import { useNotify } from '@/components/ui/NotificationProvider'
 
 // Mock data - replace with Supabase queries
 const mockJobCards = [
@@ -68,11 +70,21 @@ const mockJobCards = [
   },
 ]
 
+// Mock providers for dropdown - replace with actual data
+const mockProviders = [
+  { id: 1, name: 'John Doe', email: 'john@example.com' },
+  { id: 2, name: 'Jane Smith', email: 'jane@example.com' },
+  { id: 3, name: 'Mike Johnson', email: 'mike@example.com' },
+  { id: 4, name: 'Sarah Wilson', email: 'sarah@example.com' },
+]
+
 export default function JobCardsPage() {
-  const [jobCards] = useState(mockJobCards)
+  const notify = useNotify()
+  const [jobCards, setJobCards] = useState(mockJobCards)
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [priorityFilter, setPriorityFilter] = useState<string>('all')
+  const [showCreateModal, setShowCreateModal] = useState(false)
 
   const filteredJobCards = jobCards.filter((job) => {
     const matchesSearch = 
@@ -98,6 +110,31 @@ export default function JobCardsPage() {
     low: 'bg-green-500',
   }
 
+  const handleCreateJobCard = async (data: {
+    title: string
+    description: string
+    providerId: string
+    priority: 'low' | 'medium' | 'high'
+    location: string
+    dueDate: string
+  }) => {
+    // TODO: Replace with Supabase mutation
+    const newJobCard = {
+      id: jobCards.length + 1,
+      title: data.title,
+      description: data.description,
+      provider: mockProviders.find((p) => p.id === Number(data.providerId))?.name || 'Unknown',
+      status: 'pending',
+      priority: data.priority,
+      location: data.location,
+      createdAt: new Date().toISOString().split('T')[0],
+      dueDate: data.dueDate,
+      completedAt: null,
+    }
+    setJobCards([...jobCards, newJobCard])
+    notify.showSuccess('Job card created successfully!', 'Success')
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       <Header 
@@ -120,7 +157,10 @@ export default function JobCardsPage() {
               Create, track, and manage job cards assigned to service providers
             </p>
           </div>
-          <button className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center gap-2 shadow-sm">
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center gap-2 shadow-sm"
+          >
             <Plus className="w-5 h-5" />
             Create Job Card
           </button>
@@ -246,6 +286,14 @@ export default function JobCardsPage() {
           </div>
         )}
       </main>
+
+      {/* Create Job Card Modal */}
+      <CreateJobCardModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        providers={mockProviders}
+        onSubmit={handleCreateJobCard}
+      />
     </div>
   )
 }

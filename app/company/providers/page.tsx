@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Header from '@/components/dashboard/Header'
 import { UserCheck, Plus, Search, Edit, Trash2, Power, PowerOff } from 'lucide-react'
 import { useNotify } from '@/components/ui/NotificationProvider'
+import AddProviderModal from '@/components/modals/AddProviderModal'
 
 // Mock data - replace with Supabase queries
 const mockProviders = [
@@ -69,6 +70,21 @@ export default function ServiceProvidersPage() {
       `Provider ${provider?.name} ${provider?.status === 'active' ? 'deactivated' : 'activated'}`,
       'Status Updated'
     )
+  }
+
+  const handleAddProvider = async (data: { name: string; email: string; phone: string }) => {
+    // TODO: Replace with Supabase mutation
+    const newProvider = {
+      id: providers.length + 1,
+      name: data.name,
+      email: data.email,
+      phone: data.phone,
+      status: 'active' as const,
+      jobCardsCompleted: 0,
+      rating: 0,
+    }
+    setProviders([...providers, newProvider])
+    notify.showSuccess('Service provider added successfully!', 'Success')
   }
 
   return (
@@ -271,21 +287,12 @@ export default function ServiceProvidersPage() {
         </div>
       </main>
 
-      {/* Add Provider Modal - Placeholder */}
-      {showAddModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full p-6">
-            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">Add Service Provider</h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">Modal implementation coming soon...</p>
-            <button
-              onClick={() => setShowAddModal(false)}
-              className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Add Provider Modal */}
+      <AddProviderModal
+        isOpen={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        onSubmit={handleAddProvider}
+      />
     </div>
   )
 }
