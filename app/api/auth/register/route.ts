@@ -85,15 +85,19 @@ export async function POST(request: NextRequest) {
         contact_person: validatedData.contactPerson,
         phone: validatedData.phone,
         status: 'pending', // Requires admin approval
+        created_by: authData.user.id,
       })
       .select()
       .single()
 
     if (companyError) {
-      // Rollback: delete the auth user if company creation fails
-      await supabase.auth.admin.deleteUser(authData.user.id)
+      // Note: Cannot delete auth user without service role key
+      // Auth user will remain but can be cleaned up manually if needed
       return NextResponse.json(
-        { error: 'Failed to create company record. Please try again.' },
+        { 
+          error: 'Failed to create company record. Please try again.',
+          details: companyError.message 
+        },
         { status: 500 }
       )
     }
@@ -104,18 +108,18 @@ export async function POST(request: NextRequest) {
       .insert({
         id: authData.user.id,
         email: validatedData.email,
-        name: validatedData.contactPerson,
-        phone: validatedData.phone,
-        role: 'company_manager',
+        role: 'company',
         company_id: companyData.id,
       })
 
     if (userError) {
-      // Rollback: delete company and auth user
+      // Rollback: delete company (auth user cannot be deleted without service role)
       await supabase.from('companies').delete().eq('id', companyData.id)
-      await supabase.auth.admin.deleteUser(authData.user.id)
       return NextResponse.json(
-        { error: 'Failed to create user profile. Please try again.' },
+        { 
+          error: 'Failed to create user profile. Please try again.',
+          details: userError.message 
+        },
         { status: 500 }
       )
     }

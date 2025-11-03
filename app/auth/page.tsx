@@ -73,10 +73,10 @@ export default function AuthPage() {
       const role = result.user?.role
       if (role === 'admin') {
         router.push('/admin')
-      } else if (role === 'company_manager') {
+      } else if (role === 'company') {
         router.push('/company')
       } else {
-        router.push('/company') // Default for service providers
+        router.push('/company') // Default for providers (mobile app)
       }
     } catch {
       toast.error('Login failed. Please try again.')

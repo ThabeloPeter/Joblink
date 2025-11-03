@@ -44,8 +44,8 @@ export async function POST(request: NextRequest) {
       .eq('id', data.user.id)
       .single()
 
-    // Check if user's company is approved (if they're a company manager)
-    if (profile && profile.role === 'company_manager') {
+    // Check if user's company is approved (if they're a company user)
+    if (profile && profile.role === 'company') {
       const companyStatus = (profile.companies as any)?.status
       if (companyStatus !== 'approved') {
         return NextResponse.json(
@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
       user: {
         id: data.user.id,
         email: data.user.email,
-        role: profile?.role || 'service_provider',
+        role: profile?.role || 'provider',
         companyId: profile?.company_id || null,
       },
       session: data.session,

@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
     // Fetch user profile with company info
     const { data: profile, error: profileError } = await supabase
       .from('users')
-      .select('id, name, email, phone, role, company_id, companies(id, name, status)')
+      .select('id, email, role, company_id, companies(id, name, status, contact_person, phone)')
       .eq('id', user.id)
       .single()
 
@@ -44,14 +44,14 @@ export async function GET(request: NextRequest) {
       user: {
         id: user.id,
         email: user.email,
-        name: profile.name,
-        phone: profile.phone,
         role: profile.role,
         companyId: profile.company_id,
         company: profile.companies ? {
           id: (profile.companies as any).id,
           name: (profile.companies as any).name,
           status: (profile.companies as any).status,
+          contactPerson: (profile.companies as any).contact_person,
+          phone: (profile.companies as any).phone,
         } : null,
       },
     })
