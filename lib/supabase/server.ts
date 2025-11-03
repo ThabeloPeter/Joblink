@@ -1,17 +1,9 @@
 import { createClient } from '@supabase/supabase-js'
-import { cookies } from 'next/headers'
 
-interface CookieOptions {
-  maxAge?: number
-  domain?: string
-  path?: string
-  sameSite?: 'lax' | 'strict' | 'none'
-  secure?: boolean
-}
-
-export async function createServerClient() {
-  const cookieStore = await cookies()
-  
+// Server-side Supabase client
+// Note: For API routes that need server-side auth, use the client-side client
+// with token passed from headers, or implement proper cookie-based auth
+export function createServerClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
@@ -19,30 +11,8 @@ export async function createServerClient() {
     throw new Error('Missing Supabase environment variables')
   }
 
-  return createClient(supabaseUrl, supabaseAnonKey, {
-    cookies: {
-      get(name: string) {
-        return cookieStore.get(name)?.value
-      },
-      set(name: string, value: string, options: CookieOptions) {
-        try {
-          cookieStore.set({ name, value, ...options })
-        } catch {
-          // The `set` method was called from a Server Component.
-          // This can be ignored if you have middleware refreshing
-          // user sessions.
-        }
-      },
-      remove(name: string, options: CookieOptions) {
-        try {
-          cookieStore.set({ name, value: '', ...options })
-        } catch {
-          // The `delete` method was called from a Server Component.
-          // This can be ignored if you have middleware refreshing
-          // user sessions.
-        }
-      },
-    },
-  })
+  // Create a basic server client without cookie configuration
+  // For token-based auth, tokens should be passed via headers in API routes
+  return createClient(supabaseUrl, supabaseAnonKey)
 }
 
