@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase/client'
 
+interface CompanyData {
+  id: string
+  name: string
+  status: string
+  contact_person: string
+  phone: string
+}
+
 export async function GET(request: NextRequest) {
   try {
     // Get the session from the request headers
@@ -39,6 +47,8 @@ export async function GET(request: NextRequest) {
       )
     }
 
+    const companyData = profile.companies as CompanyData | null
+
     return NextResponse.json({
       success: true,
       user: {
@@ -46,12 +56,12 @@ export async function GET(request: NextRequest) {
         email: user.email,
         role: profile.role,
         companyId: profile.company_id,
-        company: profile.companies ? {
-          id: (profile.companies as any).id,
-          name: (profile.companies as any).name,
-          status: (profile.companies as any).status,
-          contactPerson: (profile.companies as any).contact_person,
-          phone: (profile.companies as any).phone,
+        company: companyData ? {
+          id: companyData.id,
+          name: companyData.name,
+          status: companyData.status,
+          contactPerson: companyData.contact_person,
+          phone: companyData.phone,
         } : null,
       },
     })

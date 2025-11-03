@@ -71,7 +71,8 @@ export async function POST(request: NextRequest) {
 
     // Check if user's company is approved (if they're a company user)
     if (profile.role === 'company') {
-      const companyStatus = (profile.companies as any)?.status
+      const companyData = profile.companies as { status: string } | null
+      const companyStatus = companyData?.status
       if (companyStatus !== 'approved') {
         return NextResponse.json(
           { 

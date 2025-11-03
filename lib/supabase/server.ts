@@ -1,6 +1,14 @@
 import { createClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
 
+interface CookieOptions {
+  maxAge?: number
+  domain?: string
+  path?: string
+  sameSite?: 'lax' | 'strict' | 'none'
+  secure?: boolean
+}
+
 export async function createServerClient() {
   const cookieStore = await cookies()
   
@@ -16,7 +24,7 @@ export async function createServerClient() {
       get(name: string) {
         return cookieStore.get(name)?.value
       },
-      set(name: string, value: string, options: any) {
+      set(name: string, value: string, options: CookieOptions) {
         try {
           cookieStore.set({ name, value, ...options })
         } catch {
@@ -25,7 +33,7 @@ export async function createServerClient() {
           // user sessions.
         }
       },
-      remove(name: string, options: any) {
+      remove(name: string, options: CookieOptions) {
         try {
           cookieStore.set({ name, value: '', ...options })
         } catch {
