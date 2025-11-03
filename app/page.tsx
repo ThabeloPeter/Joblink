@@ -90,14 +90,14 @@ export default function LandingPage() {
               <button 
                 className="px-10 py-6 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 active:scale-[0.97] transition-transform"
                 style={{ transform: 'skewX(-10deg)' }}
-                onClick={() => router.push('/register')}
+                onClick={() => router.push('/auth')}
               >
                 <span style={{ transform: 'skewX(10deg)', display: 'block' }}>Start Free Trial</span>
               </button>
               <button 
                 className="px-10 py-6 border-2 border-gray-600 text-gray-300 font-medium rounded-lg bg-transparent hover:bg-gray-900 active:scale-[0.97] transition-transform"
                 style={{ transform: 'skewX(-10deg)' }}
-                onClick={() => router.push('/login')}
+                onClick={() => router.push('/auth')}
               >
                 <span style={{ transform: 'skewX(10deg)', display: 'block' }}>View Demo</span>
               </button>
@@ -211,7 +211,7 @@ export default function LandingPage() {
               </p>
               <button 
                 className="px-10 py-6 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 active:scale-[0.97] transition-transform mt-2"
-                onClick={() => router.push('/register')}
+                onClick={() => router.push('/auth')}
               >
                 Get Started
               </button>
