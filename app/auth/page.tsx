@@ -43,10 +43,41 @@ export default function AuthPage() {
 
   const onLoginSubmit = async (data: LoginFormData) => {
     try {
-      // TODO: Implement Supabase login
-      console.log('Login:', data)
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        if (result.requiresApproval) {
+          toast.error('Your account is pending admin approval. Please contact support.')
+        } else {
+          toast.error(result.error || 'Login failed. Please try again.')
+        }
+        return
+      }
+
+      // Store session token in localStorage (or better, use httpOnly cookies)
+      if (result.session?.access_token) {
+        localStorage.setItem('supabase_token', result.session.access_token)
+      }
+
       toast.success('Login successful!')
-      router.push('/company')
+      
+      // Redirect based on role
+      const role = result.user?.role
+      if (role === 'admin') {
+        router.push('/admin')
+      } else if (role === 'company_manager') {
+        router.push('/company')
+      } else {
+        router.push('/company') // Default for service providers
+      }
     } catch {
       toast.error('Login failed. Please try again.')
     }
@@ -54,10 +85,28 @@ export default function AuthPage() {
 
   const onRegisterSubmit = async (data: RegisterFormData) => {
     try {
-      // TODO: Implement Supabase registration
-      console.log('Register:', data)
-      toast.success('Registration successful! Awaiting admin approval.')
-      router.push('/company')
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        toast.error(result.error || 'Registration failed. Please try again.')
+        return
+      }
+
+      toast.success('Registration successful! Your account is pending admin approval.')
+      
+      // Optionally redirect to login or keep on register page
+      setTimeout(() => {
+        setIsLogin(true)
+        registerForm.reset()
+      }, 2000)
     } catch {
       toast.error('Registration failed. Please try again.')
     }
