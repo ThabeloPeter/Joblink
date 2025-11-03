@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Header from '@/components/dashboard/Header'
-import { UserCheck, Plus, Search, MoreVertical, Edit, Trash2, Power, PowerOff } from 'lucide-react'
+import { UserCheck, Plus, Search, Edit, Trash2, Power, PowerOff } from 'lucide-react'
 import { useNotify } from '@/components/ui/NotificationProvider'
 
 // Mock data - replace with Supabase queries

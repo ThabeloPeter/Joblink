@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Header from '@/components/dashboard/Header'
-import { ClipboardList, Plus, Search, Filter, Calendar, MapPin, User, AlertCircle } from 'lucide-react'
+import { ClipboardList, Plus, Search, Calendar, MapPin, User } from 'lucide-react'
 
 // Mock data - replace with Supabase queries
 const mockJobCards = [
@@ -69,7 +69,7 @@ const mockJobCards = [
 ]
 
 export default function JobCardsPage() {
-  const [jobCards, setJobCards] = useState(mockJobCards)
+  const [jobCards] = useState(mockJobCards)
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [priorityFilter, setPriorityFilter] = useState<string>('all')
