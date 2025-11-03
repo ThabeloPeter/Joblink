@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Header from '@/components/dashboard/Header'
-import { FileText, Search, Calendar, MapPin, User, Building2, AlertCircle } from 'lucide-react'
+import { FileText, Search, Calendar, MapPin, User, Building2 } from 'lucide-react'
 
 // Mock data - replace with Supabase queries
 const mockJobCards = [

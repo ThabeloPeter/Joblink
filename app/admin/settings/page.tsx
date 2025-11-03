@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Header from '@/components/dashboard/Header'
-import { Settings, Save, Bell, Lock, Database, Mail, Shield } from 'lucide-react'
+import { Settings, Save, Bell, Database, Mail, Shield } from 'lucide-react'
 import { useNotify } from '@/components/ui/NotificationProvider'
 
 export default function AdminSettingsPage() {
