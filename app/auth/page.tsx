@@ -150,7 +150,7 @@ export default function AuthPage() {
             >
               Register
             </button>
-          </motion.div>
+          </div>
 
           {/* Sliding Forms */}
           <div className="relative overflow-hidden min-h-[550px]">
