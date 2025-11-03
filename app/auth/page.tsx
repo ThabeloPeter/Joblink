@@ -241,124 +241,133 @@ export default function AuthPage() {
                     </div>
 
                     <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Company Name
-                        </label>
-                        <div className="relative">
-                          <Building2 className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                          <input
-                            {...registerForm.register('companyName')}
-                            type="text"
-                            placeholder="Your Company Ltd"
-                            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all"
-                          />
+                      {/* Row 1: Company Name & Contact Person */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Company Name
+                          </label>
+                          <div className="relative">
+                            <Building2 className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                            <input
+                              {...registerForm.register('companyName')}
+                              type="text"
+                              placeholder="Your Company Ltd"
+                              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all"
+                            />
+                          </div>
+                          {registerForm.formState.errors.companyName && (
+                            <p className="mt-1 text-sm text-red-600">
+                              {registerForm.formState.errors.companyName.message}
+                            </p>
+                          )}
                         </div>
-                        {registerForm.formState.errors.companyName && (
-                          <p className="mt-1 text-sm text-red-600">
-                            {registerForm.formState.errors.companyName.message}
-                          </p>
-                        )}
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Contact Person
+                          </label>
+                          <div className="relative">
+                            <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                            <input
+                              {...registerForm.register('contactPerson')}
+                              type="text"
+                              placeholder="John Doe"
+                              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all"
+                            />
+                          </div>
+                          {registerForm.formState.errors.contactPerson && (
+                            <p className="mt-1 text-sm text-red-600">
+                              {registerForm.formState.errors.contactPerson.message}
+                            </p>
+                          )}
+                        </div>
                       </div>
 
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Contact Person
-                        </label>
-                        <div className="relative">
-                          <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                          <input
-                            {...registerForm.register('contactPerson')}
-                            type="text"
-                            placeholder="John Doe"
-                            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all"
-                          />
+                      {/* Row 2: Email & Phone */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Email
+                          </label>
+                          <div className="relative">
+                            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                            <input
+                              {...registerForm.register('email')}
+                              type="email"
+                              placeholder="your@email.com"
+                              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all"
+                            />
+                          </div>
+                          {registerForm.formState.errors.email && (
+                            <p className="mt-1 text-sm text-red-600">
+                              {registerForm.formState.errors.email.message}
+                            </p>
+                          )}
                         </div>
-                        {registerForm.formState.errors.contactPerson && (
-                          <p className="mt-1 text-sm text-red-600">
-                            {registerForm.formState.errors.contactPerson.message}
-                          </p>
-                        )}
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Phone
+                          </label>
+                          <div className="relative">
+                            <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                            <input
+                              {...registerForm.register('phone')}
+                              type="tel"
+                              placeholder="+1 234 567 8900"
+                              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all"
+                            />
+                          </div>
+                          {registerForm.formState.errors.phone && (
+                            <p className="mt-1 text-sm text-red-600">
+                              {registerForm.formState.errors.phone.message}
+                            </p>
+                          )}
+                        </div>
                       </div>
 
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Email
-                        </label>
-                        <div className="relative">
-                          <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                          <input
-                            {...registerForm.register('email')}
-                            type="email"
-                            placeholder="your@email.com"
-                            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all"
-                          />
+                      {/* Row 3: Password & Confirm Password */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Password
+                          </label>
+                          <div className="relative">
+                            <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                            <input
+                              {...registerForm.register('password')}
+                              type="password"
+                              placeholder="••••••••"
+                              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all"
+                            />
+                          </div>
+                          {registerForm.formState.errors.password && (
+                            <p className="mt-1 text-sm text-red-600">
+                              {registerForm.formState.errors.password.message}
+                            </p>
+                          )}
                         </div>
-                        {registerForm.formState.errors.email && (
-                          <p className="mt-1 text-sm text-red-600">
-                            {registerForm.formState.errors.email.message}
-                          </p>
-                        )}
-                      </div>
 
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Phone
-                        </label>
-                        <div className="relative">
-                          <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                          <input
-                            {...registerForm.register('phone')}
-                            type="tel"
-                            placeholder="+1 234 567 8900"
-                            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all"
-                          />
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Confirm Password
+                          </label>
+                          <div className="relative">
+                            <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                            <input
+                              {...registerForm.register('confirmPassword')}
+                              type="password"
+                              placeholder="••••••••"
+                              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all"
+                            />
+                          </div>
+                          {registerForm.formState.errors.confirmPassword && (
+                            <p className="mt-1 text-sm text-red-600">
+                              {registerForm.formState.errors.confirmPassword.message}
+                            </p>
+                          )}
                         </div>
-                        {registerForm.formState.errors.phone && (
-                          <p className="mt-1 text-sm text-red-600">
-                            {registerForm.formState.errors.phone.message}
-                          </p>
-                        )}
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Password
-                        </label>
-                        <div className="relative">
-                          <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                          <input
-                            {...registerForm.register('password')}
-                            type="password"
-                            placeholder="••••••••"
-                            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all"
-                          />
-                        </div>
-                        {registerForm.formState.errors.password && (
-                          <p className="mt-1 text-sm text-red-600">
-                            {registerForm.formState.errors.password.message}
-                          </p>
-                        )}
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Confirm Password
-                        </label>
-                        <div className="relative">
-                          <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                          <input
-                            {...registerForm.register('confirmPassword')}
-                            type="password"
-                            placeholder="••••••••"
-                            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all"
-                          />
-                        </div>
-                        {registerForm.formState.errors.confirmPassword && (
-                          <p className="mt-1 text-sm text-red-600">
-                            {registerForm.formState.errors.confirmPassword.message}
-                          </p>
-                        )}
                       </div>
                     </div>
 
