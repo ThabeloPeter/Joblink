@@ -39,11 +39,11 @@ export default function Sidebar({ userRole }: SidebarProps) {
   const basePath = userRole === 'admin' ? '/admin' : '/company'
 
   return (
-    <div className="fixed left-0 top-0 h-full w-64 bg-gray-900 border-r border-gray-800 flex flex-col z-40">
+    <div className="fixed left-0 top-0 h-full w-64 bg-gray-900 dark:bg-gray-950 border-r border-gray-800 dark:border-gray-900 flex flex-col z-40">
       {/* Logo */}
-      <div className="h-16 flex items-center px-6 border-b border-gray-800">
+      <div className="h-16 flex items-center px-6 border-b border-gray-800 dark:border-gray-900">
         <h1 className="text-xl font-bold text-white">
-          <span className="text-blue-400">Job</span>Link
+          <span className="text-blue-400 dark:text-blue-500">Job</span>Link
         </h1>
       </div>
 
@@ -74,8 +74,8 @@ export default function Sidebar({ userRole }: SidebarProps) {
       </nav>
 
       {/* Footer */}
-      <div className="border-t border-gray-800 p-4">
-        <button className="flex items-center gap-3 w-full px-4 py-3 rounded-lg text-sm font-medium text-gray-300 hover:bg-gray-800 hover:text-white transition-all">
+      <div className="border-t border-gray-800 dark:border-gray-900 p-4">
+        <button className="flex items-center gap-3 w-full px-4 py-3 rounded-lg text-sm font-medium text-gray-300 dark:text-gray-400 hover:bg-gray-800 dark:hover:bg-gray-900 hover:text-white transition-all">
           <LogOut className="w-5 h-5" />
           <span>Logout</span>
         </button>
