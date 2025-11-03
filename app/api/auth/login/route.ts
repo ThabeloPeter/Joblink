@@ -71,7 +71,9 @@ export async function POST(request: NextRequest) {
 
     // Check if user's company is approved (if they're a company user)
     if (profile.role === 'company') {
-      const companyData = profile.companies as { status: string } | null
+      // Supabase returns companies as an array or object depending on the relationship
+      const companies = profile.companies as { status: string }[] | { status: string } | null
+      const companyData = Array.isArray(companies) ? companies[0] : companies
       const companyStatus = companyData?.status
       if (companyStatus !== 'approved') {
         return NextResponse.json(
