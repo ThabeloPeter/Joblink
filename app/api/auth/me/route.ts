@@ -47,7 +47,9 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const companyData = profile.companies as CompanyData | null
+    // Supabase returns companies as an array or object depending on the relationship
+    const companies = profile.companies as CompanyData[] | CompanyData | null
+    const companyData = Array.isArray(companies) ? companies[0] : companies
 
     return NextResponse.json({
       success: true,
