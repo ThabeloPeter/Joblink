@@ -47,7 +47,7 @@ export default function AuthPage() {
       console.log('Login:', data)
       toast.success('Login successful!')
       router.push('/company')
-    } catch (error) {
+    } catch {
       toast.error('Login failed. Please try again.')
     }
   }
@@ -58,7 +58,7 @@ export default function AuthPage() {
       console.log('Register:', data)
       toast.success('Registration successful! Awaiting admin approval.')
       router.push('/company')
-    } catch (error) {
+    } catch {
       toast.error('Registration failed. Please try again.')
     }
   }
