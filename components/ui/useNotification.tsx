@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { NotificationItem, NotificationType } from './Notification'
+import { NotificationType } from './Notification'
+import type { NotificationItem } from './NotificationContainer'
 
 export function useNotification() {
   const [notifications, setNotifications] = useState<NotificationItem[]>([])
