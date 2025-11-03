@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
@@ -32,6 +32,8 @@ type RegisterFormData = z.infer<typeof registerSchema>
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true)
   const router = useRouter()
+  const formRef = useRef<HTMLDivElement>(null)
+  const [formHeight, setFormHeight] = useState<number | 'auto'>('auto')
 
   const loginForm = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -40,6 +42,22 @@ export default function AuthPage() {
   const registerForm = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
   })
+
+  useEffect(() => {
+    // Measure form height after form changes
+    if (formRef.current) {
+      // First set to auto to measure actual height
+      setFormHeight('auto')
+      const timer = setTimeout(() => {
+        if (formRef.current) {
+          const height = formRef.current.scrollHeight
+          setFormHeight(height)
+        }
+      }, 10) // Small delay to allow DOM update
+      
+      return () => clearTimeout(timer)
+    }
+  }, [isLogin])
 
   const onLoginSubmit = async (data: LoginFormData) => {
     try {
@@ -118,11 +136,7 @@ export default function AuthPage() {
         <div className="absolute top-0 right-0 w-96 h-96 bg-blue-200 rounded-full blur-3xl opacity-20 -translate-y-1/2 translate-x-1/2" />
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-200 rounded-full blur-3xl opacity-20 translate-y-1/2 -translate-x-1/2" />
 
-        <motion.div 
-          layout
-          transition={{ type: "spring", stiffness: 300, damping: 30 }}
-          className="relative z-10 w-full max-w-md"
-        >
+        <div className="relative z-10 w-full max-w-md">
           {/* Back to home */}
           <button
             onClick={() => router.push('/')}
@@ -135,7 +149,7 @@ export default function AuthPage() {
           {/* Toggle between Login/Register */}
           <motion.div 
             layout
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            transition={{ type: "spring", stiffness: 400, damping: 35 }}
             className="flex gap-2 mb-8 bg-white p-1 rounded-lg shadow-sm"
           >
             <button
@@ -162,8 +176,9 @@ export default function AuthPage() {
 
           {/* Sliding Forms */}
           <motion.div 
-            layout
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            ref={formRef}
+            animate={{ height: formHeight }}
+            transition={{ type: "spring", stiffness: 400, damping: 35 }}
             className="relative overflow-hidden"
           >
             <AnimatePresence mode="wait">
@@ -397,7 +412,7 @@ export default function AuthPage() {
               )}
             </AnimatePresence>
           </motion.div>
-        </motion.div>
+        </div>
       </div>
     </div>
   )
