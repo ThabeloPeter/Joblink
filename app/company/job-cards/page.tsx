@@ -114,7 +114,7 @@ export default function JobCardsPage() {
     title: string
     description: string
     providerId: string
-    priority: 'low' | 'medium' | 'high'
+    priority: string
     location: string
     dueDate: string
   }) => {
@@ -125,7 +125,7 @@ export default function JobCardsPage() {
       description: data.description,
       provider: mockProviders.find((p) => p.id === Number(data.providerId))?.name || 'Unknown',
       status: 'pending',
-      priority: data.priority,
+      priority: data.priority as 'low' | 'medium' | 'high',
       location: data.location,
       createdAt: new Date().toISOString().split('T')[0],
       dueDate: data.dueDate,

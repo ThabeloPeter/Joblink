@@ -12,8 +12,8 @@ const jobCardSchema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters'),
   description: z.string().min(10, 'Description must be at least 10 characters'),
   providerId: z.string().min(1, 'Please select a provider'),
-  priority: z.enum(['low', 'medium', 'high'], {
-    required_error: 'Please select a priority',
+  priority: z.string().refine((val) => ['low', 'medium', 'high'].includes(val), {
+    message: 'Please select a priority',
   }),
   location: z.string().min(3, 'Location must be at least 3 characters'),
   dueDate: z.string().min(1, 'Due date is required'),
