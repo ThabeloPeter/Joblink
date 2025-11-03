@@ -118,7 +118,11 @@ export default function AuthPage() {
         <div className="absolute top-0 right-0 w-96 h-96 bg-blue-200 rounded-full blur-3xl opacity-20 -translate-y-1/2 translate-x-1/2" />
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-200 rounded-full blur-3xl opacity-20 translate-y-1/2 -translate-x-1/2" />
 
-        <div className="relative z-10 w-full max-w-md">
+        <motion.div 
+          layout
+          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          className="relative z-10 w-full max-w-md"
+        >
           {/* Back to home */}
           <button
             onClick={() => router.push('/')}
@@ -129,7 +133,11 @@ export default function AuthPage() {
           </button>
 
           {/* Toggle between Login/Register */}
-          <div className="flex gap-2 mb-8 bg-white p-1 rounded-lg shadow-sm">
+          <motion.div 
+            layout
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            className="flex gap-2 mb-8 bg-white p-1 rounded-lg shadow-sm"
+          >
             <button
               onClick={() => setIsLogin(true)}
               className={`flex-1 py-2 px-4 rounded-md font-medium transition-all ${
@@ -150,10 +158,14 @@ export default function AuthPage() {
             >
               Register
             </button>
-          </div>
+          </motion.div>
 
           {/* Sliding Forms */}
-          <div className="relative overflow-hidden">
+          <motion.div 
+            layout
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            className="relative overflow-hidden"
+          >
             <AnimatePresence mode="wait">
               {isLogin ? (
                 <motion.div
@@ -161,7 +173,8 @@ export default function AuthPage() {
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.3 }}
+                  transition={{ duration: 0.3, ease: "easeInOut" }}
+                  layout
                 >
                   <form
                     onSubmit={loginForm.handleSubmit(onLoginSubmit)}
@@ -229,7 +242,8 @@ export default function AuthPage() {
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.3 }}
+                  transition={{ duration: 0.3, ease: "easeInOut" }}
+                  layout
                 >
                   <form
                     onSubmit={registerForm.handleSubmit(onRegisterSubmit)}
@@ -382,8 +396,8 @@ export default function AuthPage() {
                 </motion.div>
               )}
             </AnimatePresence>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
     </div>
   )
