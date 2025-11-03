@@ -1,12 +1,12 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 
 export default function LandingPage() {
   const router = useRouter()
   const scrollViewRef = useRef<HTMLDivElement>(null)
-  const [currentIndex, setCurrentIndex] = useState(0)
+  const currentIndexRef = useRef(0)
   const features = [
     {
       icon: '■',
@@ -42,18 +42,15 @@ export default function LandingPage() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentIndex((prev) => {
-        const next = (prev + 1) % features.length
-        const scrollElement = scrollViewRef.current
-        if (scrollElement && typeof window !== 'undefined') {
-          const tileWidth = 380 + 48 // card width + gap
-          scrollElement.scrollTo({
-            left: next * tileWidth,
-            behavior: 'smooth',
-          })
-        }
-        return next
-      })
+      currentIndexRef.current = (currentIndexRef.current + 1) % features.length
+      const scrollElement = scrollViewRef.current
+      if (scrollElement && typeof window !== 'undefined') {
+        const tileWidth = 380 + 48 // card width + gap
+        scrollElement.scrollTo({
+          left: currentIndexRef.current * tileWidth,
+          behavior: 'smooth',
+        })
+      }
     }, 4000) // Change slide every 4 seconds
 
     return () => clearInterval(interval)
