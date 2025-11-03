@@ -44,8 +44,33 @@ export async function POST(request: NextRequest) {
       .eq('id', data.user.id)
       .single()
 
+    // If profile doesn't exist, user cannot login
+    if (profileError || !profile) {
+      return NextResponse.json(
+        { 
+          error: 'User profile not found. Please contact support.',
+          details: 'Account exists but profile is missing'
+        },
+        { status: 403 }
+      )
+    }
+
+    // Admins can always login (no company approval check needed)
+    if (profile.role === 'admin') {
+      return NextResponse.json({
+        success: true,
+        user: {
+          id: data.user.id,
+          email: data.user.email,
+          role: 'admin',
+          companyId: null,
+        },
+        session: data.session,
+      })
+    }
+
     // Check if user's company is approved (if they're a company user)
-    if (profile && profile.role === 'company') {
+    if (profile.role === 'company') {
       const companyStatus = (profile.companies as any)?.status
       if (companyStatus !== 'approved') {
         return NextResponse.json(
@@ -58,13 +83,14 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Providers can login (no approval needed)
     return NextResponse.json({
       success: true,
       user: {
         id: data.user.id,
         email: data.user.email,
-        role: profile?.role || 'provider',
-        companyId: profile?.company_id || null,
+        role: profile.role,
+        companyId: profile.company_id,
       },
       session: data.session,
     })
