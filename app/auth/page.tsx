@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
@@ -32,8 +32,6 @@ type RegisterFormData = z.infer<typeof registerSchema>
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true)
   const router = useRouter()
-  const formRef = useRef<HTMLDivElement>(null)
-  const [formHeight, setFormHeight] = useState<number | 'auto'>('auto')
 
   const loginForm = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -42,22 +40,6 @@ export default function AuthPage() {
   const registerForm = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
   })
-
-  useEffect(() => {
-    // Measure form height after form changes
-    if (formRef.current) {
-      // First set to auto to measure actual height
-      setFormHeight('auto')
-      const timer = setTimeout(() => {
-        if (formRef.current) {
-          const height = formRef.current.scrollHeight
-          setFormHeight(height)
-        }
-      }, 10) // Small delay to allow DOM update
-      
-      return () => clearTimeout(timer)
-    }
-  }, [isLogin])
 
   const onLoginSubmit = async (data: LoginFormData) => {
     try {
@@ -147,11 +129,7 @@ export default function AuthPage() {
           </button>
 
           {/* Toggle between Login/Register */}
-          <motion.div 
-            layout
-            transition={{ type: "spring", stiffness: 400, damping: 35 }}
-            className="flex gap-2 mb-8 bg-white p-1 rounded-lg shadow-sm"
-          >
+          <div className="flex gap-2 mb-8 bg-white p-1 rounded-lg shadow-sm">
             <button
               onClick={() => setIsLogin(true)}
               className={`flex-1 py-2 px-4 rounded-md font-medium transition-all ${
@@ -175,12 +153,7 @@ export default function AuthPage() {
           </motion.div>
 
           {/* Sliding Forms */}
-          <motion.div 
-            ref={formRef}
-            animate={{ height: formHeight }}
-            transition={{ type: "spring", stiffness: 400, damping: 35 }}
-            className="relative overflow-hidden"
-          >
+          <div className="relative overflow-hidden min-h-[550px]">
             <AnimatePresence mode="wait">
               {isLogin ? (
                 <motion.div
@@ -411,7 +384,7 @@ export default function AuthPage() {
                 </motion.div>
               )}
             </AnimatePresence>
-          </motion.div>
+          </div>
         </div>
       </div>
     </div>
