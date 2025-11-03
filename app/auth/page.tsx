@@ -183,7 +183,7 @@ export default function AuthPage() {
                             {...loginForm.register('email')}
                             type="email"
                             placeholder="your@email.com"
-                            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all"
+                            className="w-full pl-10 pr-4 py-3 border-2 border-gray-400 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none transition-all text-gray-900 font-medium placeholder:text-gray-500"
                           />
                         </div>
                         {loginForm.formState.errors.email && (
@@ -203,7 +203,7 @@ export default function AuthPage() {
                             {...loginForm.register('password')}
                             type="password"
                             placeholder="••••••••"
-                            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all"
+                            className="w-full pl-10 pr-4 py-3 border-2 border-gray-400 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none transition-all text-gray-900 font-medium placeholder:text-gray-500"
                           />
                         </div>
                         {loginForm.formState.errors.password && (
@@ -253,7 +253,7 @@ export default function AuthPage() {
                               {...registerForm.register('companyName')}
                               type="text"
                               placeholder="Your Company Ltd"
-                              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all"
+                              className="w-full pl-10 pr-4 py-3 border-2 border-gray-400 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none transition-all text-gray-900 font-medium placeholder:text-gray-500"
                             />
                           </div>
                           {registerForm.formState.errors.companyName && (
@@ -273,7 +273,7 @@ export default function AuthPage() {
                               {...registerForm.register('contactPerson')}
                               type="text"
                               placeholder="John Doe"
-                              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all"
+                              className="w-full pl-10 pr-4 py-3 border-2 border-gray-400 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none transition-all text-gray-900 font-medium placeholder:text-gray-500"
                             />
                           </div>
                           {registerForm.formState.errors.contactPerson && (
@@ -296,7 +296,7 @@ export default function AuthPage() {
                               {...registerForm.register('email')}
                               type="email"
                               placeholder="your@email.com"
-                              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all"
+                              className="w-full pl-10 pr-4 py-3 border-2 border-gray-400 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none transition-all text-gray-900 font-medium placeholder:text-gray-500"
                             />
                           </div>
                           {registerForm.formState.errors.email && (
@@ -316,7 +316,7 @@ export default function AuthPage() {
                               {...registerForm.register('phone')}
                               type="tel"
                               placeholder="+1 234 567 8900"
-                              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all"
+                              className="w-full pl-10 pr-4 py-3 border-2 border-gray-400 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none transition-all text-gray-900 font-medium placeholder:text-gray-500"
                             />
                           </div>
                           {registerForm.formState.errors.phone && (
@@ -339,7 +339,7 @@ export default function AuthPage() {
                               {...registerForm.register('password')}
                               type="password"
                               placeholder="••••••••"
-                              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all"
+                              className="w-full pl-10 pr-4 py-3 border-2 border-gray-400 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none transition-all text-gray-900 font-medium placeholder:text-gray-500"
                             />
                           </div>
                           {registerForm.formState.errors.password && (
@@ -359,7 +359,7 @@ export default function AuthPage() {
                               {...registerForm.register('confirmPassword')}
                               type="password"
                               placeholder="••••••••"
-                              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all"
+                              className="w-full pl-10 pr-4 py-3 border-2 border-gray-400 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none transition-all text-gray-900 font-medium placeholder:text-gray-500"
                             />
                           </div>
                           {registerForm.formState.errors.confirmPassword && (
