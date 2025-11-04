@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
       : supabase
 
     const { data: providers, error: providersError } = await querySupabase
-      .from('providers')
+      .from('service_providers')
       .select('*')
       .eq('company_id', profile.company_id)
       .order('created_at', { ascending: false })
@@ -203,12 +203,12 @@ export async function POST(request: NextRequest) {
     // Generate unique 8-character code
     let providerCode = generateUniqueCode()
     
-    // Ensure code is unique (check if it exists in providers table)
+    // Ensure code is unique (check if it exists in service_providers table)
     let codeExists = true
     let attempts = 0
     while (codeExists && attempts < 10) {
       const { data: existingProvider } = await supabase
-        .from('providers')
+        .from('service_providers')
         .select('id')
         .eq('code', providerCode)
         .single()
@@ -243,7 +243,7 @@ export async function POST(request: NextRequest) {
 
     // Create provider record
     const { data: providerData, error: providerError } = await supabase
-      .from('providers')
+      .from('service_providers')
       .insert({
         id: authData.user.id,
         name,
@@ -280,7 +280,7 @@ export async function POST(request: NextRequest) {
     if (userError) {
       console.error('Error creating user profile:', userError)
       // Try to clean up
-      await supabase.from('providers').delete().eq('id', authData.user.id)
+      await supabase.from('service_providers').delete().eq('id', authData.user.id)
       await supabase.auth.admin.deleteUser(authData.user.id)
       return NextResponse.json(
         { error: 'Failed to create user profile', details: userError.message },
