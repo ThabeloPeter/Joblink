@@ -1,35 +1,38 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import Header from '@/components/dashboard/Header'
 import StatCard from '@/components/dashboard/StatCard'
 import { 
   UserCheck, 
   ClipboardList, 
   CheckCircle, 
-  Clock,
-  TrendingUp
+  Clock
 } from 'lucide-react'
-
-// Mock data - replace with actual Supabase queries
-const stats = {
-  totalProviders: 12,
-  activeJobCards: 28,
-  completedToday: 5,
-  pendingJobs: 8,
-  providersChange: 5,
-  completionRate: 94,
-}
+import { useCompanyDashboardData } from '@/lib/hooks/useDashboardData'
+import { getCurrentUser } from '@/lib/auth'
 
 export default function CompanyDashboard() {
+  const { stats, loading: statsLoading } = useCompanyDashboardData()
+  const [user, setUser] = useState<any>(null)
+
+  useEffect(() => {
+    async function loadUser() {
+      const currentUser = await getCurrentUser()
+      setUser(currentUser)
+    }
+    loadUser()
+  }, [])
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       <Header 
         title="Dashboard"
-        user={{
-          name: 'Company User',
-          email: 'user@company.com',
+        user={user ? {
+          name: user.email?.split('@')[0] || 'User',
+          email: user.email || '',
           role: 'Company Manager'
-        }}
+        } : undefined}
       />
       
       <main className="p-6">
@@ -37,31 +40,27 @@ export default function CompanyDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <StatCard
             title="Service Providers"
-            value={stats.totalProviders}
+            value={statsLoading ? '...' : (stats.totalProviders || 0)}
             icon={UserCheck}
-            iconColor="text-blue-600"
-            change={{ value: stats.providersChange, isPositive: true }}
-            trend={{ label: "Active providers", isPositive: true }}
+            iconColor="text-gray-700"
           />
           <StatCard
             title="Active Job Cards"
-            value={stats.activeJobCards}
+            value={statsLoading ? '...' : (stats.activeJobCards || 0)}
             icon={ClipboardList}
-            iconColor="text-purple-600"
+            iconColor="text-gray-700"
           />
           <StatCard
             title="Completed Today"
-            value={stats.completedToday}
+            value={statsLoading ? '...' : (stats.completedToday || 0)}
             icon={CheckCircle}
-            iconColor="text-green-600"
-            trend={{ label: "Last 24 hours", isPositive: true }}
+            iconColor="text-gray-700"
           />
           <StatCard
             title="Completion Rate"
-            value={`${stats.completionRate}%`}
+            value={statsLoading ? '...' : `${stats.completionRate || 0}%`}
             icon={TrendingUp}
-            iconColor="text-orange-600"
-            trend={{ label: "↑ 2% this month", isPositive: true }}
+            iconColor="text-gray-700"
           />
         </div>
 
@@ -80,36 +79,7 @@ export default function CompanyDashboard() {
             </div>
             <div className="p-6">
               <div className="space-y-3">
-                {[
-                  { id: 1, title: 'Office Repairs', provider: 'John Doe', status: 'in_progress', priority: 'high', location: 'Building A', dueDate: 'Today' },
-                  { id: 2, title: 'Maintenance Check', provider: 'Jane Smith', status: 'accepted', priority: 'medium', location: 'Building B', dueDate: 'Tomorrow' },
-                  { id: 3, title: 'Installation Work', provider: 'Mike Johnson', status: 'pending', priority: 'low', location: 'Warehouse', dueDate: 'Next Week' },
-                  { id: 4, title: 'Emergency Fix', provider: 'Sarah Wilson', status: 'in_progress', priority: 'high', location: 'Main Office', dueDate: 'Today' },
-                ].map((job) => (
-                  <div key={job.id} className="flex items-center justify-between p-4 border border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-600 transition-colors">
-                    <div className="flex items-center gap-4 flex-1">
-                      <div className="w-2 h-2 bg-gray-700 dark:bg-gray-400"></div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <p className="font-semibold text-gray-900 dark:text-gray-100 truncate">{job.title}</p>
-                        </div>
-                        <div className="flex items-center gap-3 text-xs text-gray-600 dark:text-gray-400">
-                          <span>{job.provider}</span>
-                          <span>•</span>
-                          <span>{job.location}</span>
-                          <span>•</span>
-                          <span>Due: {job.dueDate}</span>
-                        </div>
-                      </div>
-                      <span className="px-3 py-1 border border-gray-300 dark:border-gray-700 text-xs font-medium uppercase tracking-wide whitespace-nowrap text-gray-700 dark:text-gray-300">
-                        {job.status.replace('_', ' ')}
-                      </span>
-                    </div>
-                    <button className="ml-4 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 text-sm font-medium uppercase tracking-wide whitespace-nowrap">
-                      View →
-                    </button>
-                  </div>
-                ))}
+                <div className="text-center py-8 text-gray-500">No active job cards</div>
               </div>
               <button className="w-full mt-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 border border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-600 transition-colors text-sm font-medium uppercase tracking-wide">
                 View All Job Cards →

@@ -50,10 +50,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Create user account with Supabase Auth
+    // Note: signUp may not return a session if email confirmation is enabled
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email: validatedData.email,
       password: validatedData.password,
       options: {
+        emailRedirectTo: undefined, // Disable email confirmation redirect
         data: {
           company_name: validatedData.companyName,
           contact_person: validatedData.contactPerson,
@@ -132,6 +134,7 @@ export async function POST(request: NextRequest) {
         email: authData.user.email,
         companyId: companyData.id,
       },
+      session: authData.session || null, // May be null if email confirmation is required
       requiresApproval: true,
     })
   } catch (error) {

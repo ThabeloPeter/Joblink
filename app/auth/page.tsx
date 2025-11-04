@@ -115,10 +115,16 @@ export default function AuthPage() {
 
       toast.success('Registration successful! Your account is pending admin approval.')
       
-      // Optionally redirect to login or keep on register page
+      // Store session if available (for auto-login after approval)
+      if (result.session?.access_token) {
+        localStorage.setItem('supabase_token', result.session.access_token)
+      }
+      
+      // Redirect to login page after registration
       setTimeout(() => {
         setIsLogin(true)
         registerForm.reset()
+        toast.info('Please log in to access your account once approved.')
       }, 2000)
     } catch {
       toast.error('Registration failed. Please try again.')
