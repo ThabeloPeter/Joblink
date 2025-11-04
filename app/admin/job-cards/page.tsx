@@ -6,6 +6,7 @@ import { FileText, Search, Calendar, MapPin, User as UserIcon, Building2 } from 
 import { getAuthToken } from '@/lib/auth'
 import { getCurrentUser } from '@/lib/auth'
 import { User } from '@/lib/types/user'
+import ViewJobCardModal from '@/components/modals/ViewJobCardModal'
 
 interface JobCard {
   id: string
@@ -28,6 +29,8 @@ export default function AdminJobCardsPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [companyFilter, setCompanyFilter] = useState<string>('all')
+  const [selectedJobCard, setSelectedJobCard] = useState<JobCard | null>(null)
+  const [showViewModal, setShowViewModal] = useState(false)
 
   useEffect(() => {
     async function loadUser() {
@@ -289,7 +292,13 @@ export default function AdminJobCardsPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right">
-                      <button className="px-3 py-1.5 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-600 transition-colors text-sm font-medium uppercase tracking-wide">
+                      <button 
+                        onClick={() => {
+                          setSelectedJobCard(job)
+                          setShowViewModal(true)
+                        }}
+                        className="px-3 py-1.5 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-600 transition-colors text-sm font-medium uppercase tracking-wide"
+                      >
                         View Details
                       </button>
                     </td>
@@ -308,6 +317,16 @@ export default function AdminJobCardsPage() {
           )}
         </div>
       </main>
+
+      {/* View Job Card Modal */}
+      <ViewJobCardModal
+        isOpen={showViewModal}
+        onClose={() => {
+          setShowViewModal(false)
+          setSelectedJobCard(null)
+        }}
+        jobCard={selectedJobCard}
+      />
     </div>
   )
 }
