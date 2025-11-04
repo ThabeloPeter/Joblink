@@ -64,11 +64,12 @@ export async function POST(request: NextRequest) {
       },
       usingServiceRole: !!serviceRoleKey,
     })
-  } catch (error: any) {
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
     return NextResponse.json(
       {
         error: 'An error occurred',
-        details: error.message,
+        details: errorMessage,
       },
       { status: 500 }
     )
