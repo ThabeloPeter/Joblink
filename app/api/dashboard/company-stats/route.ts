@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
     // Fetch stats for this company
     // Note: If providers table doesn't exist, we'll default to 0
     const [providersResult, activeJobCardsResult, completedTodayResult, pendingJobsResult, allJobCardsResult] = await Promise.all([
-      supabase.from('providers').select('id', { count: 'exact', head: true }).eq('company_id', profile.company_id),
+      supabase.from('service_providers').select('id', { count: 'exact', head: true }).eq('company_id', profile.company_id),
       supabase.from('job_cards').select('id', { count: 'exact', head: true }).eq('company_id', profile.company_id).neq('status', 'completed'),
       supabase.from('job_cards')
         .select('id', { count: 'exact', head: true })
