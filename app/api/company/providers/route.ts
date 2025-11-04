@@ -243,7 +243,14 @@ export async function POST(request: NextRequest) {
 
     // Create provider record
     // Try inserting with minimal required fields first
-    const providerInsertData: any = {
+    const providerInsertData: {
+      id: string
+      name: string
+      email: string
+      phone: string
+      company_id: string
+      code: string
+    } = {
       id: authData.user.id,
       name,
       email,

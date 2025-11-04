@@ -94,7 +94,8 @@ export default function ServiceProvidersPage() {
     return () => {
       isMounted = false
     }
-  }, []) // Remove notify from dependencies to prevent re-renders
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []) // notify is stable from context, doesn't need to be in deps
 
   const filteredProviders = providers.filter((provider) =>
     provider.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
