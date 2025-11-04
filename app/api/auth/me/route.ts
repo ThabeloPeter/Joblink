@@ -39,21 +39,25 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Create authenticated Supabase client with the token
-    const authenticatedSupabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        global: {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      }
-    )
+    // Create Supabase client - use service role key if available (bypasses RLS), 
+    // otherwise use anon key with auth token
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    const profileSupabase = serviceRoleKey
+      ? createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, serviceRoleKey)
+      : createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+          {
+            global: {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            },
+          }
+        )
 
     // Fetch user profile with company info
-    const { data: profile, error: profileError } = await authenticatedSupabase
+    const { data: profile, error: profileError } = await profileSupabase
       .from('users')
       .select('id, email, role, company_id, companies(id, name, status, contact_person, phone)')
       .eq('id', user.id)

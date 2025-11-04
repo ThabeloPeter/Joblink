@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase/client'
+import { createClient } from '@supabase/supabase-js'
 import { z } from 'zod'
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+
+const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -38,14 +43,62 @@ export async function POST(request: NextRequest) {
     }
 
     // Fetch user profile to get role and company info
-    const { data: profile, error: profileError } = await supabase
+    // Try using service role key first (bypasses RLS), fallback to anon key with auth token
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    const profileSupabase = serviceRoleKey
+      ? createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, serviceRoleKey)
+      : createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+          {
+            global: {
+              headers: {
+                Authorization: `Bearer ${data.session.access_token}`,
+              },
+            },
+          }
+        )
+
+    const { data: profile, error: profileError } = await profileSupabase
       .from('users')
       .select('id, role, company_id, companies(status)')
       .eq('id', data.user.id)
       .single()
 
-    // If profile doesn't exist, user cannot login
-    if (profileError || !profile) {
+    // Log the error for debugging if profile doesn't exist
+    if (profileError) {
+      console.error('Profile fetch error:', {
+        message: profileError.message,
+        code: profileError.code,
+        details: profileError.details,
+        hint: profileError.hint,
+        userId: data.user.id,
+        userEmail: data.user.email,
+      })
+      
+      // If using service role key and still getting error, profile truly doesn't exist
+      // If using anon key, it might be an RLS issue
+      const isRLSIssue = !serviceRoleKey && (profileError.code === 'PGRST301' || profileError.message?.includes('permission'))
+      
+      // Return more detailed error for debugging
+      return NextResponse.json(
+        { 
+          error: 'User profile not found. Please contact support.',
+          details: profileError.message || 'Account exists but profile is missing',
+          // Include error code for debugging (remove in production)
+          debug: process.env.NODE_ENV === 'development' ? {
+            code: profileError.code,
+            hint: profileError.hint,
+            userId: data.user.id,
+            rlsIssue: isRLSIssue,
+            serviceRoleUsed: !!serviceRoleKey,
+          } : undefined,
+        },
+        { status: 403 }
+      )
+    }
+
+    if (!profile) {
       return NextResponse.json(
         { 
           error: 'User profile not found. Please contact support.',
