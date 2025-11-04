@@ -34,12 +34,32 @@ export async function GET(request: NextRequest) {
       .eq('id', authUser.id)
       .single()
 
-    if (profileError || !profile || profile.role !== 'company') {
+    if (profileError) {
+      console.error('Error fetching user profile:', profileError)
+      return NextResponse.json(
+        { error: 'Failed to fetch user profile', details: profileError.message },
+        { status: 500 }
+      )
+    }
+
+    if (!profile || profile.role !== 'company') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    // Fetch providers for this company
-    const { data: providers, error: providersError } = await supabase
+    if (!profile.company_id) {
+      console.error('User has no company_id:', { userId: authUser.id, profile })
+      return NextResponse.json(
+        { error: 'User is not associated with a company' },
+        { status: 400 }
+      )
+    }
+
+    // Fetch providers for this company - use service role key if available
+    const querySupabase = serviceRoleKey
+      ? createClient(supabaseUrl, serviceRoleKey)
+      : supabase
+
+    const { data: providers, error: providersError } = await querySupabase
       .from('providers')
       .select('*')
       .eq('company_id', profile.company_id)
@@ -53,23 +73,41 @@ export async function GET(request: NextRequest) {
       )
     }
 
+    // Handle case where providers is null or undefined
+    if (!providers) {
+      return NextResponse.json({ providers: [] })
+    }
+
     // Get job card statistics for each provider
     const providersWithStats = await Promise.all(
       providers.map(async (provider) => {
-        const { count: completedCount } = await supabase
-          .from('job_cards')
-          .select('id', { count: 'exact', head: true })
-          .eq('provider_id', provider.id)
-          .eq('status', 'completed')
+        try {
+          const { count: completedCount } = await querySupabase
+            .from('job_cards')
+            .select('id', { count: 'exact', head: true })
+            .eq('provider_id', provider.id)
+            .eq('status', 'completed')
 
-        return {
-          id: provider.id,
-          name: provider.name || 'Unknown',
-          email: provider.email || '',
-          phone: provider.phone || '',
-          status: provider.status || 'active',
-          jobCardsCompleted: completedCount || 0,
-          rating: provider.rating || 0,
+          return {
+            id: provider.id,
+            name: provider.name || 'Unknown',
+            email: provider.email || '',
+            phone: provider.phone || '',
+            status: provider.status || 'active',
+            jobCardsCompleted: completedCount || 0,
+            rating: provider.rating || 0,
+          }
+        } catch (error) {
+          console.error(`Error fetching stats for provider ${provider.id}:`, error)
+          return {
+            id: provider.id,
+            name: provider.name || 'Unknown',
+            email: provider.email || '',
+            phone: provider.phone || '',
+            status: provider.status || 'active',
+            jobCardsCompleted: 0,
+            rating: provider.rating || 0,
+          }
         }
       })
     )
