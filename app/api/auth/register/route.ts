@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase/client'
+import { createClient } from '@supabase/supabase-js'
 import { z } from 'zod'
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
 const registerSchema = z.object({
   companyName: z.string().min(2, 'Company name must be at least 2 characters'),
@@ -21,8 +24,17 @@ export async function POST(request: NextRequest) {
     // Validate request body
     const validatedData = registerSchema.parse(body)
     
+    // Create Supabase client for server-side operations
+    const supabase = createClient(supabaseUrl, supabaseAnonKey)
+    
+    // Use service role key if available for checking existing records (bypasses RLS)
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    const checkSupabase = serviceRoleKey
+      ? createClient(supabaseUrl, serviceRoleKey)
+      : supabase
+    
     // Check if user already exists
-    const { data: existingUser } = await supabase
+    const { data: existingUser } = await checkSupabase
       .from('users')
       .select('id')
       .eq('email', validatedData.email)
@@ -36,7 +48,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if company already exists
-    const { data: existingCompany } = await supabase
+    const { data: existingCompany } = await checkSupabase
       .from('companies')
       .select('id')
       .eq('name', validatedData.companyName)
@@ -78,8 +90,12 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create company record
-    const { data: companyData, error: companyError } = await supabase
+    // Create company record - use service role key if available (bypasses RLS)
+    const insertSupabase = serviceRoleKey
+      ? createClient(supabaseUrl, serviceRoleKey)
+      : supabase
+    
+    const { data: companyData, error: companyError } = await insertSupabase
       .from('companies')
       .insert({
         name: validatedData.companyName,
@@ -93,6 +109,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (companyError) {
+      console.error('Company creation error:', companyError)
       // Note: Cannot delete auth user without service role key
       // Auth user will remain but can be cleaned up manually if needed
       return NextResponse.json(
@@ -105,7 +122,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create user profile record
-    const { error: userError } = await supabase
+    const { error: userError } = await insertSupabase
       .from('users')
       .insert({
         id: authData.user.id,
@@ -115,8 +132,11 @@ export async function POST(request: NextRequest) {
       })
 
     if (userError) {
+      console.error('User profile creation error:', userError)
       // Rollback: delete company (auth user cannot be deleted without service role)
-      await supabase.from('companies').delete().eq('id', companyData.id)
+      if (serviceRoleKey) {
+        await insertSupabase.from('companies').delete().eq('id', companyData.id)
+      }
       return NextResponse.json(
         { 
           error: 'Failed to create user profile. Please try again.',
