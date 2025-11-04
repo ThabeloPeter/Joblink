@@ -1,7 +1,7 @@
 'use client'
 
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Calendar, MapPin, User as UserIcon, Building2, FileText, AlertCircle } from 'lucide-react'
+import { X, Calendar, MapPin, User as UserIcon, Building2, FileText } from 'lucide-react'
 
 interface JobCard {
   id: string
