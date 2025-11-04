@@ -228,7 +228,17 @@ export default function JobCardsPage() {
 
         {/* Job Cards Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-          {filteredJobCards.map((job) => (
+          {loading ? (
+            <div className="col-span-full text-center py-12">
+              <p className="text-gray-600 dark:text-gray-400">Loading job cards...</p>
+            </div>
+          ) : filteredJobCards.length === 0 ? (
+            <div className="col-span-full text-center py-12">
+              <ClipboardList className="w-12 h-12 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
+              <p className="text-gray-600 dark:text-gray-400">No job cards found</p>
+            </div>
+          ) : (
+            filteredJobCards.map((job) => (
             <div
               key={job.id}
               className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow p-6"
@@ -272,11 +282,9 @@ export default function JobCardsPage() {
                 </button>
               </div>
             </div>
-          ))}
+            ))
+          )}
         </div>
-
-        {filteredJobCards.length === 0 && (
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-12 text-center">
             <ClipboardList className="w-12 h-12 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
             <p className="text-gray-600 dark:text-gray-400">No job cards found</p>
           </div>
