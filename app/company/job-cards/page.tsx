@@ -114,21 +114,48 @@ export default function JobCardsPage() {
     location: string
     dueDate: string
   }) => {
-    // TODO: Replace with Supabase mutation
-    const newJobCard: JobCard = {
-      id: Date.now().toString(),
-      title: data.title,
-      description: data.description,
-      provider: providers.find((p) => p.id === data.providerId)?.name || 'Unknown',
-      status: 'pending',
-      priority: data.priority,
-      location: data.location,
-      createdAt: new Date().toISOString().split('T')[0],
-      dueDate: data.dueDate,
-      completedAt: null,
+    try {
+      const token = getAuthToken()
+      if (!token) {
+        notify.showError('Authentication required', 'Error')
+        return
+      }
+
+      const response = await fetch('/api/company/job-cards', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        notify.showError(result.error || 'Failed to create job card', 'Error')
+        return
+      }
+
+      notify.showSuccess('Job card created successfully!', 'Success')
+
+      // Refresh job cards list
+      const jobCardsResponse = await fetch('/api/company/job-cards', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      if (jobCardsResponse.ok) {
+        const jobCardsData = await jobCardsResponse.json()
+        setJobCards(jobCardsData.jobCards || [])
+      }
+
+      setShowCreateModal(false)
+    } catch (error) {
+      console.error('Error creating job card:', error)
+      notify.showError('Failed to create job card. Please try again.', 'Error')
     }
-    setJobCards([...jobCards, newJobCard])
-    notify.showSuccess('Job card created successfully!', 'Success')
   }
 
   return (
