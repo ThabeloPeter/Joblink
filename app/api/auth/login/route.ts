@@ -114,12 +114,12 @@ export async function POST(request: NextRequest) {
       }
       
       // Return more detailed error for debugging
+      // Always include debug info to help diagnose issues
       return NextResponse.json(
         { 
           error: 'User profile not found. Please contact support.',
           details: profileError.message || 'Account exists but profile is missing',
-          // Include error code for debugging (remove in production)
-          debug: process.env.NODE_ENV === 'development' ? {
+          debug: {
             code: profileError.code,
             hint: profileError.hint,
             userId: data.user.id,
@@ -127,7 +127,8 @@ export async function POST(request: NextRequest) {
             rlsIssue: isRLSIssue,
             serviceRoleUsed: !!serviceRoleKey,
             errorMessage: profileError.message,
-          } : undefined,
+            errorDetails: profileError.details,
+          },
         },
         { status: 403 }
       )
