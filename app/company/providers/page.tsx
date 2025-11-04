@@ -37,6 +37,7 @@ export default function ServiceProvidersPage() {
 
   useEffect(() => {
     let isMounted = true
+    let hasShownError = false
 
     async function fetchProviders() {
       try {
@@ -56,7 +57,18 @@ export default function ServiceProvidersPage() {
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}))
-          throw new Error(errorData.error || 'Failed to fetch providers')
+          console.error('Failed to fetch providers:', {
+            status: response.status,
+            error: errorData.error,
+            details: errorData.details,
+          })
+          
+          // Only show error once
+          if (isMounted && !hasShownError) {
+            hasShownError = true
+            notify.showError(errorData.error || 'Failed to load providers', 'Error')
+          }
+          return
         }
 
         const data = await response.json()
@@ -65,7 +77,9 @@ export default function ServiceProvidersPage() {
         }
       } catch (error) {
         console.error('Error fetching providers:', error)
-        if (isMounted) {
+        // Only show error once
+        if (isMounted && !hasShownError) {
+          hasShownError = true
           notify.showError('Failed to load providers', 'Error')
         }
       } finally {
@@ -80,7 +94,7 @@ export default function ServiceProvidersPage() {
     return () => {
       isMounted = false
     }
-  }, [notify])
+  }, []) // Remove notify from dependencies to prevent re-renders
 
   const filteredProviders = providers.filter((provider) =>
     provider.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
