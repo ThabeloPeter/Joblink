@@ -8,6 +8,7 @@ import { useNotify } from '@/components/ui/NotificationProvider'
 import { getAuthToken } from '@/lib/auth'
 import { getCurrentUser } from '@/lib/auth'
 import { User } from '@/lib/types/user'
+import ViewCompanyModal from '@/components/modals/ViewCompanyModal'
 
 interface Company {
   id: string
@@ -29,6 +30,8 @@ export default function CompaniesPage() {
   const [user, setUser] = useState<User | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>(searchParams.get('status') || 'all')
+  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null)
+  const [showViewModal, setShowViewModal] = useState(false)
 
   useEffect(() => {
     async function loadUser() {
@@ -321,7 +324,13 @@ export default function CompaniesPage() {
                             </button>
                           </>
                         )}
-                        <button className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-sm font-medium flex items-center gap-1">
+                        <button 
+                          onClick={() => {
+                            setSelectedCompany(company)
+                            setShowViewModal(true)
+                          }}
+                          className="px-3 py-1.5 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-600 transition-colors text-sm font-medium uppercase tracking-wide flex items-center gap-1"
+                        >
                           <Eye className="w-4 h-4" />
                           View
                         </button>
@@ -342,6 +351,16 @@ export default function CompaniesPage() {
           )}
         </div>
       </main>
+
+      {/* View Company Modal */}
+      <ViewCompanyModal
+        isOpen={showViewModal}
+        onClose={() => {
+          setShowViewModal(false)
+          setSelectedCompany(null)
+        }}
+        company={selectedCompany}
+      />
     </div>
   )
 }
