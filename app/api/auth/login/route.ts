@@ -20,15 +20,15 @@ export async function POST(request: NextRequest) {
     const validatedData = loginSchema.parse(body)
     
     // Sign in user with Supabase
-    const { data, error } = await supabase.auth.signInWithPassword({
+    let loginResult = await supabase.auth.signInWithPassword({
       email: validatedData.email,
       password: validatedData.password,
     })
 
-    if (error) {
-      // Check if error is due to email not being confirmed
-      const isEmailNotConfirmed = error.message?.toLowerCase().includes('email not confirmed') || 
-                                  error.message?.toLowerCase().includes('email_not_confirmed')
+    // Handle email not confirmed error
+    if (loginResult.error) {
+      const isEmailNotConfirmed = loginResult.error.message?.toLowerCase().includes('email not confirmed') || 
+                                  loginResult.error.message?.toLowerCase().includes('email_not_confirmed')
       
       if (isEmailNotConfirmed) {
         // Try to confirm the email automatically using service role key if available
@@ -49,82 +49,70 @@ export async function POST(request: NextRequest) {
             
             if (!confirmError) {
               // Retry login after confirming email
-              const { data: retryData, error: retryError } = await supabase.auth.signInWithPassword({
+              loginResult = await supabase.auth.signInWithPassword({
                 email: validatedData.email,
                 password: validatedData.password,
               })
               
-              if (!retryError && retryData) {
-                // Continue with the login flow using retryData
-                // Replace the data variable with retryData for the rest of the function
-                data = retryData
-              } else {
-                // If retry still fails, return the email confirmation error
+              // If retry still fails, return error
+              if (loginResult.error) {
                 return NextResponse.json(
                   { 
                     error: 'Please confirm your email address before logging in. Check your inbox for a confirmation email.',
-                    details: retryError?.message || error.message,
+                    details: loginResult.error.message,
                     requiresEmailConfirmation: true
                   },
                   { status: 401 }
                 )
               }
             } else {
-              // If confirmation failed, return the email confirmation error
+              // If confirmation failed, return error
               return NextResponse.json(
                 { 
                   error: 'Please confirm your email address before logging in. Check your inbox for a confirmation email.',
-                  details: error.message,
+                  details: loginResult.error.message,
                   requiresEmailConfirmation: true
                 },
                 { status: 401 }
               )
             }
           } else {
-            // User not found or already confirmed, return error
+            // User not found or already confirmed
             return NextResponse.json(
               { 
                 error: 'Please confirm your email address before logging in. Check your inbox for a confirmation email.',
-                details: error.message,
+                details: loginResult.error.message,
                 requiresEmailConfirmation: true
               },
               { status: 401 }
             )
           }
         } else {
-          // Service role key not available, return email confirmation error
+          // Service role key not available
           return NextResponse.json(
             { 
               error: 'Please confirm your email address before logging in. Check your inbox for a confirmation email.',
-              details: error.message,
+              details: loginResult.error.message,
               requiresEmailConfirmation: true
             },
             { status: 401 }
           )
         }
-          }
-        }
-        
+      } else {
+        // Other errors
         return NextResponse.json(
           { 
-            error: 'Please confirm your email address before logging in. Check your inbox for a confirmation email.',
-            details: error.message,
-            requiresEmailConfirmation: true
+            error: loginResult.error.message || 'Invalid email or password',
+            details: loginResult.error.message 
           },
           { status: 401 }
         )
       }
-      
-      return NextResponse.json(
-        { 
-          error: error.message || 'Invalid email or password',
-          details: error.message 
-        },
-        { status: 401 }
-      )
     }
 
-    if (!data.user) {
+    const { data, error } = loginResult
+
+    if (error || !data.user) {
       return NextResponse.json(
         { error: 'Authentication failed. Please try again.' },
         { status: 401 }
