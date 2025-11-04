@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Header from '@/components/dashboard/Header'
-import { FileText, Search, Calendar, MapPin, User, Building2 } from 'lucide-react'
+import { FileText, Search, Calendar, MapPin, User as UserIcon, Building2 } from 'lucide-react'
 import { getAuthToken } from '@/lib/auth'
 import { getCurrentUser } from '@/lib/auth'
 import { User } from '@/lib/types/user'
@@ -257,7 +257,7 @@ export default function AdminJobCardsPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-2">
-                        <User className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+                        <UserIcon className="w-4 h-4 text-gray-400 dark:text-gray-500" />
                         <span className="text-sm text-gray-900 dark:text-gray-100">
                           {job.provider}
                         </span>

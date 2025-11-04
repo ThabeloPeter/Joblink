@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Header from '@/components/dashboard/Header'
-import { ClipboardList, Plus, Search, Calendar, MapPin, User } from 'lucide-react'
+import { ClipboardList, Plus, Search, Calendar, MapPin, User as UserIcon } from 'lucide-react'
 import CreateJobCardModal from '@/components/modals/CreateJobCardModal'
 import { useNotify } from '@/components/ui/NotificationProvider'
 import { getAuthToken } from '@/lib/auth'
@@ -247,7 +247,7 @@ export default function JobCardsPage() {
               {/* Info */}
               <div className="space-y-3 mb-4">
                 <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                  <User className="w-4 h-4" />
+                  <UserIcon className="w-4 h-4" />
                   <span>{job.provider}</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
