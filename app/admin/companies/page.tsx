@@ -1,63 +1,69 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Header from '@/components/dashboard/Header'
 import { Building2, Search, CheckCircle, XCircle, Eye } from 'lucide-react'
 import { useNotify } from '@/components/ui/NotificationProvider'
+import { getAuthToken } from '@/lib/auth'
+import { getCurrentUser } from '@/lib/auth'
+import { User } from '@/lib/types/user'
 
-// Mock data - replace with Supabase queries
-const mockCompanies = [
-  {
-    id: 1,
-    name: 'ABC Corporation',
-    email: 'contact@abc.com',
-    contactPerson: 'John Smith',
-    phone: '+1 234 567 8900',
-    status: 'approved',
-    createdAt: '2024-01-10',
-    totalJobCards: 45,
-    activeJobCards: 12,
-  },
-  {
-    id: 2,
-    name: 'XYZ Industries',
-    email: 'info@xyz.com',
-    contactPerson: 'Jane Doe',
-    phone: '+1 234 567 8901',
-    status: 'pending',
-    createdAt: '2024-01-18',
-    totalJobCards: 0,
-    activeJobCards: 0,
-  },
-  {
-    id: 3,
-    name: 'Tech Solutions Inc',
-    email: 'hello@techsolutions.com',
-    contactPerson: 'Mike Johnson',
-    phone: '+1 234 567 8902',
-    status: 'approved',
-    createdAt: '2024-01-05',
-    totalJobCards: 89,
-    activeJobCards: 23,
-  },
-  {
-    id: 4,
-    name: 'Global Services Ltd',
-    email: 'contact@globalservices.com',
-    contactPerson: 'Sarah Wilson',
-    phone: '+1 234 567 8903',
-    status: 'suspended',
-    createdAt: '2024-01-01',
-    totalJobCards: 34,
-    activeJobCards: 0,
-  },
-]
+interface Company {
+  id: string
+  name: string
+  email: string
+  contactPerson: string
+  phone: string
+  status: string
+  createdAt: string
+  totalJobCards: number
+  activeJobCards: number
+}
 
 export default function CompaniesPage() {
   const notify = useNotify()
-  const [companies, setCompanies] = useState(mockCompanies)
+  const [companies, setCompanies] = useState<Company[]>([])
+  const [loading, setLoading] = useState(true)
+  const [user, setUser] = useState<User | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
+
+  useEffect(() => {
+    async function loadUser() {
+      const currentUser = await getCurrentUser()
+      setUser(currentUser)
+    }
+    loadUser()
+  }, [])
+
+  useEffect(() => {
+    async function fetchCompanies() {
+      try {
+        const token = getAuthToken()
+        if (!token) return
+
+        const response = await fetch('/api/admin/companies', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch companies')
+        }
+
+        const data = await response.json()
+        setCompanies(data.companies || [])
+      } catch (error) {
+        console.error('Error fetching companies:', error)
+        notify.showError('Failed to load companies', 'Error')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchCompanies()
+  }, [notify])
 
   const filteredCompanies = companies.filter((company) => {
     const matchesSearch =
@@ -68,25 +74,28 @@ export default function CompaniesPage() {
     return matchesSearch && matchesStatus
   })
 
-  const handleApprove = (id: number) => {
+  const handleApprove = async (id: string) => {
+    // TODO: Implement API call to update company status
     setCompanies((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, status: 'approved' as const } : c))
+      prev.map((c) => (c.id === id ? { ...c, status: 'approved' } : c))
     )
     const company = companies.find((c) => c.id === id)
     notify.showSuccess(`Company ${company?.name} has been approved`, 'Approval Successful')
   }
 
-  const handleReject = (id: number) => {
+  const handleReject = async (id: string) => {
+    // TODO: Implement API call to update company status
     setCompanies((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, status: 'rejected' as const } : c))
+      prev.map((c) => (c.id === id ? { ...c, status: 'rejected' } : c))
     )
     const company = companies.find((c) => c.id === id)
     notify.showSuccess(`Company ${company?.name} has been rejected`, 'Rejection Successful')
   }
 
-  const handleSuspend = (id: number) => {
+  const handleSuspend = async (id: string) => {
+    // TODO: Implement API call to update company status
     setCompanies((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, status: 'suspended' as const } : c))
+      prev.map((c) => (c.id === id ? { ...c, status: 'suspended' } : c))
     )
     const company = companies.find((c) => c.id === id)
     notify.showSuccess(`Company ${company?.name} has been suspended`, 'Suspension Successful')
@@ -103,11 +112,11 @@ export default function CompaniesPage() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       <Header
         title="Companies"
-        user={{
-          name: 'Admin User',
-          email: 'admin@joblink.com',
+        user={user ? {
+          name: user.email?.split('@')[0] || 'Admin',
+          email: user.email || '',
           role: 'Administrator',
-        }}
+        } : undefined}
       />
 
       <main className="p-6">
@@ -125,28 +134,28 @@ export default function CompaniesPage() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+          <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 p-4">
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Companies</p>
             <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-              {companies.length}
+              {loading ? '...' : companies.length}
             </p>
           </div>
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+          <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 p-4">
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Pending Approval</p>
-            <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
-              {companies.filter((c) => c.status === 'pending').length}
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              {loading ? '...' : companies.filter((c) => c.status === 'pending').length}
             </p>
           </div>
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+          <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 p-4">
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Approved</p>
-            <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-              {companies.filter((c) => c.status === 'approved').length}
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              {loading ? '...' : companies.filter((c) => c.status === 'approved').length}
             </p>
           </div>
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Suspended</p>
-            <p className="text-2xl font-bold text-red-600 dark:text-red-400">
-              {companies.filter((c) => c.status === 'suspended').length}
+          <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 p-4">
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Rejected</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              {loading ? '...' : companies.filter((c) => c.status === 'rejected').length}
             </p>
           </div>
         </div>
@@ -173,39 +182,43 @@ export default function CompaniesPage() {
               <option value="approved">Approved</option>
               <option value="pending">Pending</option>
               <option value="rejected">Rejected</option>
-              <option value="suspended">Suspended</option>
             </select>
           </div>
         </div>
 
         {/* Companies Table */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
-                <tr>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                    Company
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                    Contact
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                    Job Cards
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                    Registered
-                  </th>
-                  <th className="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                {filteredCompanies.map((company) => (
+        <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 overflow-hidden">
+          {loading ? (
+            <div className="text-center py-12">
+              <p className="text-gray-600 dark:text-gray-400">Loading companies...</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                      Company
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                      Contact
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                      Job Cards
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                      Registered
+                    </th>
+                    <th className="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                  {filteredCompanies.map((company) => (
                   <tr
                     key={company.id}
                     className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
@@ -257,27 +270,19 @@ export default function CompaniesPage() {
                           <>
                             <button
                               onClick={() => handleApprove(company.id)}
-                              className="px-3 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium flex items-center gap-1"
+                              className="px-3 py-1.5 bg-gray-900 dark:bg-gray-700 text-white border border-gray-900 dark:border-gray-700 hover:bg-gray-800 dark:hover:bg-gray-600 transition-colors text-sm font-medium uppercase tracking-wide flex items-center gap-1"
                             >
                               <CheckCircle className="w-4 h-4" />
                               Approve
                             </button>
                             <button
                               onClick={() => handleReject(company.id)}
-                              className="px-3 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium flex items-center gap-1"
+                              className="px-3 py-1.5 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-600 transition-colors text-sm font-medium uppercase tracking-wide flex items-center gap-1"
                             >
                               <XCircle className="w-4 h-4" />
                               Reject
                             </button>
                           </>
-                        )}
-                        {company.status === 'approved' && (
-                          <button
-                            onClick={() => handleSuspend(company.id)}
-                            className="px-3 py-1.5 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors text-sm font-medium"
-                          >
-                            Suspend
-                          </button>
                         )}
                         <button className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-sm font-medium flex items-center gap-1">
                           <Eye className="w-4 h-4" />
@@ -286,12 +291,13 @@ export default function CompaniesPage() {
                       </div>
                     </td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
 
-          {filteredCompanies.length === 0 && (
+          {!loading && filteredCompanies.length === 0 && (
             <div className="text-center py-12">
               <Building2 className="w-12 h-12 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
               <p className="text-gray-600 dark:text-gray-400">No companies found</p>

@@ -1,63 +1,76 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Header from '@/components/dashboard/Header'
 import { UserCheck, Plus, Search, Edit, Trash2, Power, PowerOff } from 'lucide-react'
 import { useNotify } from '@/components/ui/NotificationProvider'
 import AddProviderModal from '@/components/modals/AddProviderModal'
+import { getAuthToken } from '@/lib/auth'
+import { getCurrentUser } from '@/lib/auth'
+import { User } from '@/lib/types/user'
 
-// Mock data - replace with Supabase queries
-const mockProviders = [
-  {
-    id: 1,
-    name: 'John Doe',
-    email: 'john@example.com',
-    phone: '+1 234 567 8900',
-    status: 'active',
-    jobCardsCompleted: 24,
-    rating: 4.8,
-  },
-  {
-    id: 2,
-    name: 'Jane Smith',
-    email: 'jane@example.com',
-    phone: '+1 234 567 8901',
-    status: 'active',
-    jobCardsCompleted: 18,
-    rating: 4.9,
-  },
-  {
-    id: 3,
-    name: 'Mike Johnson',
-    email: 'mike@example.com',
-    phone: '+1 234 567 8902',
-    status: 'inactive',
-    jobCardsCompleted: 12,
-    rating: 4.5,
-  },
-  {
-    id: 4,
-    name: 'Sarah Wilson',
-    email: 'sarah@example.com',
-    phone: '+1 234 567 8903',
-    status: 'active',
-    jobCardsCompleted: 31,
-    rating: 5.0,
-  },
-]
+interface Provider {
+  id: string
+  name: string
+  email: string
+  phone: string
+  status: string
+  jobCardsCompleted: number
+  rating: number
+}
 
 export default function ServiceProvidersPage() {
   const notify = useNotify()
-  const [providers, setProviders] = useState(mockProviders)
+  const [providers, setProviders] = useState<Provider[]>([])
+  const [loading, setLoading] = useState(true)
+  const [user, setUser] = useState<User | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [showAddModal, setShowAddModal] = useState(false)
+
+  useEffect(() => {
+    async function loadUser() {
+      const currentUser = await getCurrentUser()
+      setUser(currentUser)
+    }
+    loadUser()
+  }, [])
+
+  useEffect(() => {
+    async function fetchProviders() {
+      try {
+        const token = getAuthToken()
+        if (!token) return
+
+        const response = await fetch('/api/company/providers', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch providers')
+        }
+
+        const data = await response.json()
+        setProviders(data.providers || [])
+      } catch (error) {
+        console.error('Error fetching providers:', error)
+        notify.showError('Failed to load providers', 'Error')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchProviders()
+  }, [notify])
 
   const filteredProviders = providers.filter((provider) =>
     provider.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     provider.email.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
-  const toggleProviderStatus = (id: number) => {
+  const toggleProviderStatus = async (id: string) => {
+    // TODO: Implement API call to update provider status
     setProviders((prev) =>
       prev.map((p) =>
         p.id === id
@@ -73,13 +86,13 @@ export default function ServiceProvidersPage() {
   }
 
   const handleAddProvider = async (data: { name: string; email: string; phone: string }) => {
-    // TODO: Replace with Supabase mutation
-    const newProvider = {
-      id: providers.length + 1,
+    // TODO: Implement API call to create provider
+    const newProvider: Provider = {
+      id: Date.now().toString(),
       name: data.name,
       email: data.email,
       phone: data.phone,
-      status: 'active' as const,
+      status: 'active',
       jobCardsCompleted: 0,
       rating: 0,
     }
@@ -91,11 +104,11 @@ export default function ServiceProvidersPage() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       <Header 
         title="Service Providers"
-        user={{
-          name: 'Company User',
-          email: 'user@company.com',
+        user={user ? {
+          name: user.email?.split('@')[0] || 'User',
+          email: user.email || '',
           role: 'Company Manager'
-        }}
+        } : undefined}
       />
       
       <main className="p-6">

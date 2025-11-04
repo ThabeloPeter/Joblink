@@ -1,90 +1,86 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Header from '@/components/dashboard/Header'
 import { ClipboardList, Plus, Search, Calendar, MapPin, User } from 'lucide-react'
 import CreateJobCardModal from '@/components/modals/CreateJobCardModal'
 import { useNotify } from '@/components/ui/NotificationProvider'
+import { getAuthToken } from '@/lib/auth'
+import { getCurrentUser } from '@/lib/auth'
+import { User } from '@/lib/types/user'
 
-// Mock data - replace with Supabase queries
-const mockJobCards = [
-  {
-    id: 1,
-    title: 'Office Repairs - Building A',
-    description: 'Fix broken windows and door locks on the 3rd floor',
-    provider: 'John Doe',
-    status: 'in_progress',
-    priority: 'high',
-    location: 'Building A, 3rd Floor',
-    createdAt: '2024-01-15',
-    dueDate: '2024-01-20',
-    completedAt: null,
-  },
-  {
-    id: 2,
-    title: 'Maintenance Check - HVAC System',
-    description: 'Routine maintenance check for all HVAC units',
-    provider: 'Jane Smith',
-    status: 'accepted',
-    priority: 'medium',
-    location: 'Building B, All Floors',
-    createdAt: '2024-01-16',
-    dueDate: '2024-01-25',
-    completedAt: null,
-  },
-  {
-    id: 3,
-    title: 'Installation Work - New Equipment',
-    description: 'Install new machinery in the warehouse',
-    provider: 'Mike Johnson',
-    status: 'pending',
-    priority: 'low',
-    location: 'Warehouse',
-    createdAt: '2024-01-17',
-    dueDate: '2024-01-30',
-    completedAt: null,
-  },
-  {
-    id: 4,
-    title: 'Emergency Fix - Electrical Issue',
-    description: 'Urgent electrical repair needed in main office',
-    provider: 'Sarah Wilson',
-    status: 'in_progress',
-    priority: 'high',
-    location: 'Main Office, Ground Floor',
-    createdAt: '2024-01-18',
-    dueDate: '2024-01-19',
-    completedAt: null,
-  },
-  {
-    id: 5,
-    title: 'Painting Work - Conference Room',
-    description: 'Paint walls and ceiling in conference room',
-    provider: 'John Doe',
-    status: 'completed',
-    priority: 'medium',
-    location: 'Building A, 2nd Floor',
-    createdAt: '2024-01-10',
-    dueDate: '2024-01-15',
-    completedAt: '2024-01-15',
-  },
-]
+interface JobCard {
+  id: string
+  title: string
+  description: string
+  provider: string
+  status: string
+  priority: string
+  location: string
+  createdAt: string
+  dueDate: string
+  completedAt: string | null
+}
 
-// Mock providers for dropdown - replace with actual data
-const mockProviders = [
-  { id: 1, name: 'John Doe', email: 'john@example.com' },
-  { id: 2, name: 'Jane Smith', email: 'jane@example.com' },
-  { id: 3, name: 'Mike Johnson', email: 'mike@example.com' },
-  { id: 4, name: 'Sarah Wilson', email: 'sarah@example.com' },
-]
+interface Provider {
+  id: string
+  name: string
+  email: string
+}
 
 export default function JobCardsPage() {
   const notify = useNotify()
-  const [jobCards, setJobCards] = useState(mockJobCards)
+  const [jobCards, setJobCards] = useState<JobCard[]>([])
+  const [providers, setProviders] = useState<Provider[]>([])
+  const [loading, setLoading] = useState(true)
+  const [user, setUser] = useState<User | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [priorityFilter, setPriorityFilter] = useState<string>('all')
   const [showCreateModal, setShowCreateModal] = useState(false)
+
+  useEffect(() => {
+    async function loadUser() {
+      const currentUser = await getCurrentUser()
+      setUser(currentUser)
+    }
+    loadUser()
+  }, [])
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const token = getAuthToken()
+        if (!token) return
+
+        const [jobCardsResponse, providersResponse] = await Promise.all([
+          fetch('/api/company/job-cards', {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          fetch('/api/company/providers', {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+        ])
+
+        if (jobCardsResponse.ok) {
+          const jobCardsData = await jobCardsResponse.json()
+          setJobCards(jobCardsData.jobCards || [])
+        }
+
+        if (providersResponse.ok) {
+          const providersData = await providersResponse.json()
+          setProviders(providersData.providers || [])
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error)
+        notify.showError('Failed to load data', 'Error')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [notify])
 
   const filteredJobCards = jobCards.filter((job) => {
     const matchesSearch = 
@@ -123,7 +119,7 @@ export default function JobCardsPage() {
       id: jobCards.length + 1,
       title: data.title,
       description: data.description,
-      provider: mockProviders.find((p) => p.id === Number(data.providerId))?.name || 'Unknown',
+      provider: providers.find((p) => p.id === data.providerId)?.name || 'Unknown',
       status: 'pending',
       priority: data.priority as 'low' | 'medium' | 'high',
       location: data.location,
@@ -139,11 +135,11 @@ export default function JobCardsPage() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       <Header 
         title="Job Cards"
-        user={{
-          name: 'Company User',
-          email: 'user@company.com',
+        user={user ? {
+          name: user.email?.split('@')[0] || 'User',
+          email: user.email || '',
           role: 'Company Manager'
-        }}
+        } : undefined}
       />
       
       <main className="p-6">
@@ -291,7 +287,7 @@ export default function JobCardsPage() {
       <CreateJobCardModal
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}
-        providers={mockProviders}
+        providers={providers.map(p => ({ id: p.id, name: p.name, email: p.email }))}
         onSubmit={handleCreateJobCard}
       />
     </div>

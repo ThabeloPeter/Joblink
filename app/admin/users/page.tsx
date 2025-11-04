@@ -1,75 +1,70 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Header from '@/components/dashboard/Header'
 import { Users, Search, Phone } from 'lucide-react'
 import { useNotify } from '@/components/ui/NotificationProvider'
+import { getAuthToken } from '@/lib/auth'
+import { getCurrentUser } from '@/lib/auth'
+import { User } from '@/lib/types/user'
 
-// Mock data - replace with Supabase queries
-const mockUsers = [
-  {
-    id: 1,
-    name: 'John Smith',
-    email: 'john.smith@abc.com',
-    phone: '+1 234 567 8900',
-    role: 'company_manager',
-    company: 'ABC Corporation',
-    status: 'active',
-    lastLogin: '2024-01-20',
-    createdAt: '2024-01-10',
-  },
-  {
-    id: 2,
-    name: 'Jane Doe',
-    email: 'jane.doe@xyz.com',
-    phone: '+1 234 567 8901',
-    role: 'company_manager',
-    company: 'XYZ Industries',
-    status: 'active',
-    lastLogin: '2024-01-19',
-    createdAt: '2024-01-15',
-  },
-  {
-    id: 3,
-    name: 'Service Provider 1',
-    email: 'provider1@example.com',
-    phone: '+1 234 567 8902',
-    role: 'service_provider',
-    company: null,
-    status: 'active',
-    lastLogin: '2024-01-20',
-    createdAt: '2024-01-05',
-  },
-  {
-    id: 4,
-    name: 'Mike Johnson',
-    email: 'mike@techsolutions.com',
-    phone: '+1 234 567 8903',
-    role: 'company_manager',
-    company: 'Tech Solutions Inc',
-    status: 'inactive',
-    lastLogin: '2024-01-10',
-    createdAt: '2024-01-01',
-  },
-  {
-    id: 5,
-    name: 'Admin User',
-    email: 'admin@joblink.com',
-    phone: '+1 234 567 8904',
-    role: 'admin',
-    company: null,
-    status: 'active',
-    lastLogin: '2024-01-20',
-    createdAt: '2023-12-01',
-  },
-]
+interface UserData {
+  id: string
+  name: string
+  email: string
+  phone: string
+  role: string
+  company: string | null
+  status: string
+  lastLogin: string
+  createdAt: string
+}
 
 export default function UsersPage() {
   const notify = useNotify()
-  const [users, setUsers] = useState(mockUsers)
+  const [users, setUsers] = useState<UserData[]>([])
+  const [loading, setLoading] = useState(true)
+  const [user, setUser] = useState<User | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [roleFilter, setRoleFilter] = useState<string>('all')
   const [statusFilter, setStatusFilter] = useState<string>('all')
+
+  useEffect(() => {
+    async function loadUser() {
+      const currentUser = await getCurrentUser()
+      setUser(currentUser)
+    }
+    loadUser()
+  }, [])
+
+  useEffect(() => {
+    async function fetchUsers() {
+      try {
+        const token = getAuthToken()
+        if (!token) return
+
+        const response = await fetch('/api/admin/users', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch users')
+        }
+
+        const data = await response.json()
+        setUsers(data.users || [])
+      } catch (error) {
+        console.error('Error fetching users:', error)
+        notify.showError('Failed to load users', 'Error')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchUsers()
+  }, [notify])
 
   const filteredUsers = users.filter((user) => {
     const matchesSearch =
@@ -81,15 +76,16 @@ export default function UsersPage() {
     return matchesSearch && matchesRole && matchesStatus
   })
 
-  const handleToggleStatus = (id: number) => {
+  const handleToggleStatus = async (id: string) => {
+    // TODO: Implement API call to update user status
     setUsers((prev) =>
       prev.map((u) =>
         u.id === id ? { ...u, status: u.status === 'active' ? 'inactive' : 'active' } : u
       )
     )
-    const user = users.find((u) => u.id === id)
+    const userData = users.find((u) => u.id === id)
     notify.showSuccess(
-      `User ${user?.name} has been ${user?.status === 'active' ? 'deactivated' : 'activated'}`,
+      `User ${userData?.name} has been ${userData?.status === 'active' ? 'deactivated' : 'activated'}`,
       'Status Updated'
     )
   }
@@ -110,11 +106,11 @@ export default function UsersPage() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       <Header
         title="Users"
-        user={{
-          name: 'Admin User',
-          email: 'admin@joblink.com',
+        user={user ? {
+          name: user.email?.split('@')[0] || 'Admin',
+          email: user.email || '',
           role: 'Administrator',
-        }}
+        } : undefined}
       />
 
       <main className="p-6">
@@ -132,26 +128,26 @@ export default function UsersPage() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+          <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 p-4">
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Users</p>
-            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{users.length}</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{loading ? '...' : users.length}</p>
           </div>
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+          <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 p-4">
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Company Managers</p>
-            <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-              {users.filter((u) => u.role === 'company_manager').length}
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              {loading ? '...' : users.filter((u) => u.role === 'company_manager').length}
             </p>
           </div>
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+          <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 p-4">
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Service Providers</p>
-            <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-              {users.filter((u) => u.role === 'service_provider').length}
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              {loading ? '...' : users.filter((u) => u.role === 'service_provider').length}
             </p>
           </div>
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+          <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 p-4">
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Active Users</p>
-            <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-              {users.filter((u) => u.status === 'active').length}
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              {loading ? '...' : users.filter((u) => u.status === 'active').length}
             </p>
           </div>
         </div>
@@ -192,108 +188,114 @@ export default function UsersPage() {
         </div>
 
         {/* Users Table */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
-                <tr>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                    User
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                    Contact
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                    Role
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                    Company
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                    Last Login
-                  </th>
-                  <th className="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                {filteredUsers.map((user) => (
-                  <tr
-                    key={user.id}
-                    className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
-                  >
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
-                          <span className="text-blue-600 dark:text-blue-400 font-semibold text-sm">
-                            {user.name.charAt(0)}
-                          </span>
-                        </div>
-                        <div>
-                          <p className="font-semibold text-gray-900 dark:text-gray-100">
-                            {user.name}
-                          </p>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">{user.email}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                        <Phone className="w-4 h-4" />
-                        <span>{user.phone}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          roleColors[user.role as keyof typeof roleColors]
-                        }`}
-                      >
-                        {roleLabels[user.role as keyof typeof roleLabels]}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <p className="text-sm text-gray-900 dark:text-gray-100">
-                        {user.company || 'N/A'}
-                      </p>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          user.status === 'active'
-                            ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
-                            : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
-                        }`}
-                      >
-                        {user.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <p className="text-sm text-gray-900 dark:text-gray-100">{user.lastLogin}</p>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right">
-                      <button
-                        onClick={() => handleToggleStatus(user.id)}
-                        className={`px-3 py-1.5 rounded-lg transition-colors text-sm font-medium ${
-                          user.status === 'active'
-                            ? 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-                            : 'bg-green-600 text-white hover:bg-green-700'
-                        }`}
-                      >
-                        {user.status === 'active' ? 'Deactivate' : 'Activate'}
-                      </button>
-                    </td>
+        <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 overflow-hidden">
+          {loading ? (
+            <div className="text-center py-12">
+              <p className="text-gray-600 dark:text-gray-400">Loading users...</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                      User
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                      Contact
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                      Role
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                      Company
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                      Last Login
+                    </th>
+                    <th className="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                      Actions
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                  {filteredUsers.map((userData) => (
+                    <tr
+                      key={userData.id}
+                      className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                    >
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 border border-gray-300 dark:border-gray-700 flex items-center justify-center">
+                            <span className="text-gray-700 dark:text-gray-300 font-semibold text-sm">
+                              {userData.name.charAt(0)}
+                            </span>
+                          </div>
+                          <div>
+                            <p className="font-semibold text-gray-900 dark:text-gray-100">
+                              {userData.name}
+                            </p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">{userData.email}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                          <Phone className="w-4 h-4" />
+                          <span>{userData.phone}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span
+                          className={`px-3 py-1 border border-gray-300 dark:border-gray-700 text-xs font-medium uppercase tracking-wide ${
+                            roleColors[userData.role as keyof typeof roleColors] || 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+                          }`}
+                        >
+                          {roleLabels[userData.role as keyof typeof roleLabels] || userData.role}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <p className="text-sm text-gray-900 dark:text-gray-100">
+                          {userData.company || 'N/A'}
+                        </p>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span
+                          className={`px-3 py-1 border border-gray-300 dark:border-gray-700 text-xs font-medium uppercase tracking-wide ${
+                            userData.status === 'active'
+                              ? 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+                              : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-500'
+                          }`}
+                        >
+                          {userData.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <p className="text-sm text-gray-900 dark:text-gray-100">{userData.lastLogin}</p>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right">
+                        <button
+                          onClick={() => handleToggleStatus(userData.id)}
+                          className={`px-3 py-1.5 border border-gray-300 dark:border-gray-700 transition-colors text-sm font-medium uppercase tracking-wide ${
+                            userData.status === 'active'
+                              ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 hover:border-gray-400 dark:hover:border-gray-600'
+                              : 'bg-gray-900 dark:bg-gray-700 text-white hover:bg-gray-800 dark:hover:bg-gray-600'
+                          }`}
+                        >
+                          {userData.status === 'active' ? 'Deactivate' : 'Activate'}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
 
-          {filteredUsers.length === 0 && (
+          {!loading && filteredUsers.length === 0 && (
             <div className="text-center py-12">
               <Users className="w-12 h-12 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
               <p className="text-gray-600 dark:text-gray-400">No users found</p>

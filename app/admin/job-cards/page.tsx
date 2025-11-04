@@ -1,83 +1,69 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Header from '@/components/dashboard/Header'
 import { FileText, Search, Calendar, MapPin, User, Building2 } from 'lucide-react'
+import { getAuthToken } from '@/lib/auth'
+import { getCurrentUser } from '@/lib/auth'
+import { User } from '@/lib/types/user'
 
-// Mock data - replace with Supabase queries
-const mockJobCards = [
-  {
-    id: 1,
-    title: 'Office Repairs - Building A',
-    description: 'Fix broken windows and door locks on the 3rd floor',
-    company: 'ABC Corporation',
-    provider: 'John Doe',
-    status: 'in_progress',
-    priority: 'high',
-    location: 'Building A, 3rd Floor',
-    createdAt: '2024-01-15',
-    dueDate: '2024-01-20',
-    completedAt: null,
-  },
-  {
-    id: 2,
-    title: 'Maintenance Check - HVAC System',
-    description: 'Routine maintenance check for all HVAC units',
-    company: 'XYZ Industries',
-    provider: 'Jane Smith',
-    status: 'accepted',
-    priority: 'medium',
-    location: 'Building B, All Floors',
-    createdAt: '2024-01-16',
-    dueDate: '2024-01-25',
-    completedAt: null,
-  },
-  {
-    id: 3,
-    title: 'Installation Work - New Equipment',
-    description: 'Install new machinery in the warehouse',
-    company: 'Tech Solutions Inc',
-    provider: 'Mike Johnson',
-    status: 'pending',
-    priority: 'low',
-    location: 'Warehouse',
-    createdAt: '2024-01-17',
-    dueDate: '2024-01-30',
-    completedAt: null,
-  },
-  {
-    id: 4,
-    title: 'Emergency Fix - Electrical Issue',
-    description: 'Urgent electrical repair needed in main office',
-    company: 'ABC Corporation',
-    provider: 'Sarah Wilson',
-    status: 'in_progress',
-    priority: 'high',
-    location: 'Main Office, Ground Floor',
-    createdAt: '2024-01-18',
-    dueDate: '2024-01-19',
-    completedAt: null,
-  },
-  {
-    id: 5,
-    title: 'Painting Work - Conference Room',
-    description: 'Paint walls and ceiling in conference room',
-    company: 'Global Services Ltd',
-    provider: 'John Doe',
-    status: 'completed',
-    priority: 'medium',
-    location: 'Building A, 2nd Floor',
-    createdAt: '2024-01-10',
-    dueDate: '2024-01-15',
-    completedAt: '2024-01-15',
-  },
-]
+interface JobCard {
+  id: string
+  title: string
+  description: string
+  company: string
+  provider: string
+  status: string
+  priority: string
+  location: string
+  createdAt: string
+  dueDate: string
+  completedAt: string | null
+}
 
 export default function AdminJobCardsPage() {
-  const [jobCards] = useState(mockJobCards)
+  const [jobCards, setJobCards] = useState<JobCard[]>([])
+  const [loading, setLoading] = useState(true)
+  const [user, setUser] = useState<User | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [companyFilter, setCompanyFilter] = useState<string>('all')
+
+  useEffect(() => {
+    async function loadUser() {
+      const currentUser = await getCurrentUser()
+      setUser(currentUser)
+    }
+    loadUser()
+  }, [])
+
+  useEffect(() => {
+    async function fetchJobCards() {
+      try {
+        const token = getAuthToken()
+        if (!token) return
+
+        const response = await fetch('/api/admin/job-cards', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch job cards')
+        }
+
+        const data = await response.json()
+        setJobCards(data.jobCards || [])
+      } catch (error) {
+        console.error('Error fetching job cards:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchJobCards()
+  }, [])
 
   const filteredJobCards = jobCards.filter((job) => {
     const matchesSearch =
@@ -110,11 +96,11 @@ export default function AdminJobCardsPage() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       <Header
         title="Job Cards"
-        user={{
-          name: 'Admin User',
-          email: 'admin@joblink.com',
+        user={user ? {
+          name: user.email?.split('@')[0] || 'Admin',
+          email: user.email || '',
           role: 'Administrator',
-        }}
+        } : undefined}
       />
 
       <main className="p-6">
@@ -135,31 +121,31 @@ export default function AdminJobCardsPage() {
           <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 p-4">
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total</p>
             <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-              {jobCards.length}
+              {loading ? '...' : jobCards.length}
             </p>
           </div>
           <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 p-4">
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Pending</p>
-            <p className="text-2xl font-bold text-gray-600 dark:text-gray-400">
-              {jobCards.filter((j) => j.status === 'pending').length}
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              {loading ? '...' : jobCards.filter((j) => j.status === 'pending').length}
             </p>
           </div>
           <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 p-4">
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">In Progress</p>
             <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-              {jobCards.filter((j) => j.status === 'in_progress').length}
+              {loading ? '...' : jobCards.filter((j) => j.status === 'in_progress').length}
             </p>
           </div>
           <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 p-4">
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Completed</p>
             <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-              {jobCards.filter((j) => j.status === 'completed').length}
+              {loading ? '...' : jobCards.filter((j) => j.status === 'completed').length}
             </p>
           </div>
           <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 p-4">
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Companies</p>
             <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-              {uniqueCompanies.length}
+              {loading ? '...' : uniqueCompanies.length}
             </p>
           </div>
         </div>
@@ -205,36 +191,41 @@ export default function AdminJobCardsPage() {
         </div>
 
         {/* Job Cards Table */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
-                <tr>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                    Job Card
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                    Company
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                    Provider
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                    Location
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                    Due Date
-                  </th>
-                  <th className="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                {filteredJobCards.map((job) => (
+        <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 overflow-hidden">
+          {loading ? (
+            <div className="text-center py-12">
+              <p className="text-gray-600 dark:text-gray-400">Loading job cards...</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                      Job Card
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                      Company
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                      Provider
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                      Location
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                      Due Date
+                    </th>
+                    <th className="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                  {filteredJobCards.map((job) => (
                   <tr
                     key={job.id}
                     className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
@@ -242,8 +233,8 @@ export default function AdminJobCardsPage() {
                     <td className="px-6 py-4">
                       <div className="flex items-start gap-3">
                         <div
-                          className={`w-3 h-3 rounded-full mt-2 flex-shrink-0 ${
-                            priorityColors[job.priority as keyof typeof priorityColors]
+                          className={`w-3 h-3 mt-2 flex-shrink-0 bg-gray-700 ${
+                            priorityColors[job.priority as keyof typeof priorityColors] || 'bg-gray-700'
                           }`}
                         ></div>
                         <div className="flex-1 min-w-0">
@@ -282,8 +273,8 @@ export default function AdminJobCardsPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          statusColors[job.status as keyof typeof statusColors]
+                        className={`px-3 py-1 border border-gray-300 dark:border-gray-700 text-xs font-medium uppercase tracking-wide ${
+                          statusColors[job.status as keyof typeof statusColors] || 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
                         }`}
                       >
                         {job.status.replace('_', ' ')}
@@ -298,17 +289,18 @@ export default function AdminJobCardsPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right">
-                      <button className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-sm font-medium">
+                      <button className="px-3 py-1.5 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-600 transition-colors text-sm font-medium uppercase tracking-wide">
                         View Details
                       </button>
                     </td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
 
-          {filteredJobCards.length === 0 && (
+          {!loading && filteredJobCards.length === 0 && (
             <div className="text-center py-12">
               <FileText className="w-12 h-12 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
               <p className="text-gray-600 dark:text-gray-400">No job cards found</p>
