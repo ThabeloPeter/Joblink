@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import Header from '@/components/dashboard/Header'
 import { Building2, Search, CheckCircle, XCircle, Eye } from 'lucide-react'
 import { useNotify } from '@/components/ui/NotificationProvider'
@@ -22,11 +23,12 @@ interface Company {
 
 export default function CompaniesPage() {
   const notify = useNotify()
+  const searchParams = useSearchParams()
   const [companies, setCompanies] = useState<Company[]>([])
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState<User | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
-  const [statusFilter, setStatusFilter] = useState<string>('all')
+  const [statusFilter, setStatusFilter] = useState<string>(searchParams.get('status') || 'all')
 
   useEffect(() => {
     async function loadUser() {

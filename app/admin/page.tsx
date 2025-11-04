@@ -200,9 +200,9 @@ export default function AdminDashboard() {
                   ))}
                 </div>
               )}
-              <button className="w-full mt-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 border border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-600 transition-colors text-sm font-medium uppercase tracking-wide">
+              <Link href="/admin/companies?status=pending" className="w-full mt-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 border border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-600 transition-colors text-sm font-medium uppercase tracking-wide flex items-center justify-center">
                 View All Pending Approvals →
-              </button>
+              </Link>
             </div>
           </div>
 
