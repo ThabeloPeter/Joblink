@@ -204,12 +204,18 @@ export async function POST(request: NextRequest) {
         hint: jobCardError.hint,
         data: jobCardData,
       })
+      
+      // Return detailed error to help debug
       return NextResponse.json(
         { 
           error: 'Failed to create job card', 
           details: jobCardError.message,
           code: jobCardError.code,
           hint: jobCardError.hint,
+          debug: process.env.NODE_ENV === 'development' ? {
+            attemptedData: jobCardData,
+            errorObject: jobCardError,
+          } : undefined,
         },
         { status: 500 }
       )

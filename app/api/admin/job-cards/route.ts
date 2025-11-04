@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
           id,
           name
         ),
-        providers (
+        service_providers (
           id,
           name
         )
@@ -72,9 +72,9 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const formattedJobCards = jobCards.map((job) => {
+    const formattedJobCards = (jobCards || []).map((job) => {
       const company = Array.isArray(job.companies) ? job.companies[0] : job.companies
-      const provider = Array.isArray(job.providers) ? job.providers[0] : job.providers
+      const provider = Array.isArray(job.service_providers) ? job.service_providers[0] : job.service_providers
 
       return {
         id: job.id,
