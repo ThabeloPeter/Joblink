@@ -91,14 +91,26 @@ export async function POST(request: NextRequest) {
       if (serviceRoleKey) {
         const directCheck = await profileSupabase
           .from('users')
-          .select('id')
+          .select('id, email, role')
           .eq('id', data.user.id)
           .maybeSingle()
         
         console.log('Direct profile check result:', {
           exists: !!directCheck.data,
+          data: directCheck.data,
           error: directCheck.error?.message,
+          errorCode: directCheck.error?.code,
         })
+        
+        // If profile exists but single() failed, there might be a data issue
+        if (directCheck.data && profileError) {
+          console.warn('Profile exists but single() query failed - possible data inconsistency:', {
+            profileData: directCheck.data,
+            originalError: profileError.message,
+          })
+        }
+      } else {
+        console.warn('Service role key not set - RLS may be blocking the query. Add SUPABASE_SERVICE_ROLE_KEY to .env.local')
       }
       
       // Return more detailed error for debugging
