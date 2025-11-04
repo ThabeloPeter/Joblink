@@ -7,7 +7,6 @@ import {
   UserCheck, 
   ClipboardList, 
   CheckCircle, 
-  Clock,
   TrendingUp
 } from 'lucide-react'
 import { useCompanyDashboardData } from '@/lib/hooks/useDashboardData'
