@@ -124,7 +124,6 @@ export default function AuthPage() {
       setTimeout(() => {
         setIsLogin(true)
         registerForm.reset()
-        toast.info('Please log in to access your account once approved.')
       }, 2000)
     } catch {
       toast.error('Registration failed. Please try again.')
