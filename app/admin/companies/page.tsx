@@ -75,21 +75,65 @@ export default function CompaniesPage() {
   })
 
   const handleApprove = async (id: string) => {
-    // TODO: Implement API call to update company status
-    setCompanies((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, status: 'approved' } : c))
-    )
-    const company = companies.find((c) => c.id === id)
-    notify.showSuccess(`Company ${company?.name} has been approved`, 'Approval Successful')
+    try {
+      const token = getAuthToken()
+      if (!token) {
+        notify.showError('Authentication required', 'Error')
+        return
+      }
+
+      const response = await fetch(`/api/admin/companies/${id}/approve`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      if (response.ok) {
+        const company = companies.find((c) => c.id === id)
+        setCompanies((prev) =>
+          prev.map((c) => (c.id === id ? { ...c, status: 'approved' } : c))
+        )
+        notify.showSuccess(`Company ${company?.name} has been approved`, 'Approval Successful')
+      } else {
+        const data = await response.json()
+        notify.showError(data.error || 'Failed to approve company', 'Error')
+      }
+    } catch (error) {
+      console.error('Error approving company:', error)
+      notify.showError('Failed to approve company. Please try again.', 'Error')
+    }
   }
 
   const handleReject = async (id: string) => {
-    // TODO: Implement API call to update company status
-    setCompanies((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, status: 'rejected' } : c))
-    )
-    const company = companies.find((c) => c.id === id)
-    notify.showSuccess(`Company ${company?.name} has been rejected`, 'Rejection Successful')
+    try {
+      const token = getAuthToken()
+      if (!token) {
+        notify.showError('Authentication required', 'Error')
+        return
+      }
+
+      const response = await fetch(`/api/admin/companies/${id}/reject`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      if (response.ok) {
+        const company = companies.find((c) => c.id === id)
+        setCompanies((prev) =>
+          prev.map((c) => (c.id === id ? { ...c, status: 'rejected' } : c))
+        )
+        notify.showSuccess(`Company ${company?.name} has been rejected`, 'Rejection Successful')
+      } else {
+        const data = await response.json()
+        notify.showError(data.error || 'Failed to reject company', 'Error')
+      }
+    } catch (error) {
+      console.error('Error rejecting company:', error)
+      notify.showError('Failed to reject company. Please try again.', 'Error')
+    }
   }
 
   const statusColors = {
