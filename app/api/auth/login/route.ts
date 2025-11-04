@@ -26,6 +26,95 @@ export async function POST(request: NextRequest) {
     })
 
     if (error) {
+      // Check if error is due to email not being confirmed
+      const isEmailNotConfirmed = error.message?.toLowerCase().includes('email not confirmed') || 
+                                  error.message?.toLowerCase().includes('email_not_confirmed')
+      
+      if (isEmailNotConfirmed) {
+        // Try to confirm the email automatically using service role key if available
+        const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+        if (serviceRoleKey) {
+          const adminSupabase = createClient(supabaseUrl, serviceRoleKey)
+          
+          // Get the user by email
+          const { data: { users } } = await adminSupabase.auth.admin.listUsers()
+          const user = users?.find(u => u.email === validatedData.email)
+          
+          if (user && !user.email_confirmed_at) {
+            // Manually confirm the email
+            const { error: confirmError } = await adminSupabase.auth.admin.updateUserById(
+              user.id,
+              { email_confirm: true }
+            )
+            
+            if (!confirmError) {
+              // Retry login after confirming email
+              const { data: retryData, error: retryError } = await supabase.auth.signInWithPassword({
+                email: validatedData.email,
+                password: validatedData.password,
+              })
+              
+              if (!retryError && retryData) {
+                // Continue with the login flow using retryData
+                // Replace the data variable with retryData for the rest of the function
+                data = retryData
+              } else {
+                // If retry still fails, return the email confirmation error
+                return NextResponse.json(
+                  { 
+                    error: 'Please confirm your email address before logging in. Check your inbox for a confirmation email.',
+                    details: retryError?.message || error.message,
+                    requiresEmailConfirmation: true
+                  },
+                  { status: 401 }
+                )
+              }
+            } else {
+              // If confirmation failed, return the email confirmation error
+              return NextResponse.json(
+                { 
+                  error: 'Please confirm your email address before logging in. Check your inbox for a confirmation email.',
+                  details: error.message,
+                  requiresEmailConfirmation: true
+                },
+                { status: 401 }
+              )
+            }
+          } else {
+            // User not found or already confirmed, return error
+            return NextResponse.json(
+              { 
+                error: 'Please confirm your email address before logging in. Check your inbox for a confirmation email.',
+                details: error.message,
+                requiresEmailConfirmation: true
+              },
+              { status: 401 }
+            )
+          }
+        } else {
+          // Service role key not available, return email confirmation error
+          return NextResponse.json(
+            { 
+              error: 'Please confirm your email address before logging in. Check your inbox for a confirmation email.',
+              details: error.message,
+              requiresEmailConfirmation: true
+            },
+            { status: 401 }
+          )
+        }
+          }
+        }
+        
+        return NextResponse.json(
+          { 
+            error: 'Please confirm your email address before logging in. Check your inbox for a confirmation email.',
+            details: error.message,
+            requiresEmailConfirmation: true
+          },
+          { status: 401 }
+        )
+      }
+      
       return NextResponse.json(
         { 
           error: error.message || 'Invalid email or password',
