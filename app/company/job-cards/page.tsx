@@ -166,24 +166,24 @@ export default function JobCardsPage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total</p>
-            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{jobCards.length}</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{loading ? '...' : jobCards.length}</p>
           </div>
           <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">In Progress</p>
-            <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
-              {jobCards.filter((j) => j.status === 'in_progress').length}
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              {loading ? '...' : jobCards.filter((j) => j.status === 'in_progress').length}
             </p>
           </div>
           <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Pending</p>
-            <p className="text-2xl font-bold text-gray-600 dark:text-gray-400">
-              {jobCards.filter((j) => j.status === 'pending').length}
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              {loading ? '...' : jobCards.filter((j) => j.status === 'pending').length}
             </p>
           </div>
           <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Completed</p>
-            <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-              {jobCards.filter((j) => j.status === 'completed').length}
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              {loading ? '...' : jobCards.filter((j) => j.status === 'completed').length}
             </p>
           </div>
         </div>

@@ -92,15 +92,6 @@ export default function CompaniesPage() {
     notify.showSuccess(`Company ${company?.name} has been rejected`, 'Rejection Successful')
   }
 
-  const handleSuspend = async (id: string) => {
-    // TODO: Implement API call to update company status
-    setCompanies((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, status: 'suspended' } : c))
-    )
-    const company = companies.find((c) => c.id === id)
-    notify.showSuccess(`Company ${company?.name} has been suspended`, 'Suspension Successful')
-  }
-
   const statusColors = {
     approved: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400',
     pending: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400',
