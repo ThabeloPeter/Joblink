@@ -118,18 +118,52 @@ export default function ServiceProvidersPage() {
   }
 
   const handleAddProvider = async (data: { name: string; email: string; phone: string }) => {
-    // TODO: Implement API call to create provider
-    const newProvider: Provider = {
-      id: Date.now().toString(),
-      name: data.name,
-      email: data.email,
-      phone: data.phone,
-      status: 'active',
-      jobCardsCompleted: 0,
-      rating: 0,
+    try {
+      const token = getAuthToken()
+      if (!token) {
+        notify.showError('Authentication required', 'Error')
+        return
+      }
+
+      const response = await fetch('/api/company/providers', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        notify.showError(result.error || 'Failed to add provider', 'Error')
+        return
+      }
+
+      // Show success with the generated code
+      notify.showSuccess(
+        `Provider added successfully! Login code: ${result.provider.code}`,
+        'Success'
+      )
+
+      // Refresh providers list
+      const providersResponse = await fetch('/api/company/providers', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      if (providersResponse.ok) {
+        const providersData = await providersResponse.json()
+        setProviders(providersData.providers || [])
+      }
+
+      setShowAddModal(false)
+    } catch (error) {
+      console.error('Error adding provider:', error)
+      notify.showError('Failed to add provider. Please try again.', 'Error')
     }
-    setProviders([...providers, newProvider])
-    notify.showSuccess('Service provider added successfully!', 'Success')
   }
 
   return (
