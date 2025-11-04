@@ -232,6 +232,7 @@ export default function AuthPage() {
                           <input
                             {...loginForm.register('email')}
                             type="email"
+                            autoComplete="email"
                             placeholder="your@email.com"
                             className="w-full pl-10 pr-4 py-3 border-2 border-gray-400 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none transition-all text-gray-900 font-medium placeholder:text-gray-500"
                           />
@@ -252,6 +253,7 @@ export default function AuthPage() {
                           <input
                             {...loginForm.register('password')}
                             type="password"
+                            autoComplete="current-password"
                             placeholder="••••••••"
                             className="w-full pl-10 pr-4 py-3 border-2 border-gray-400 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none transition-all text-gray-900 font-medium placeholder:text-gray-500"
                           />
@@ -346,6 +348,7 @@ export default function AuthPage() {
                             <input
                               {...registerForm.register('email')}
                               type="email"
+                              autoComplete="email"
                               placeholder="your@email.com"
                               className="w-full pl-10 pr-4 py-3 border-2 border-gray-400 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none transition-all text-gray-900 font-medium placeholder:text-gray-500"
                             />
@@ -389,6 +392,7 @@ export default function AuthPage() {
                             <input
                               {...registerForm.register('password')}
                               type="password"
+                              autoComplete="new-password"
                               placeholder="••••••••"
                               className="w-full pl-10 pr-4 py-3 border-2 border-gray-400 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none transition-all text-gray-900 font-medium placeholder:text-gray-500"
                             />
@@ -409,6 +413,7 @@ export default function AuthPage() {
                             <input
                               {...registerForm.register('confirmPassword')}
                               type="password"
+                              autoComplete="new-password"
                               placeholder="••••••••"
                               className="w-full pl-10 pr-4 py-3 border-2 border-gray-400 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none transition-all text-gray-900 font-medium placeholder:text-gray-500"
                             />

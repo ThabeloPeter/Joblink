@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase/client'
+import { createClient } from '@supabase/supabase-js'
 
 interface CompanyData {
   id: string
@@ -23,6 +23,12 @@ export async function GET(request: NextRequest) {
 
     const token = authHeader.replace('Bearer ', '')
     
+    // Create a Supabase client to verify the token
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
+    
     // Verify the token and get the user
     const { data: { user }, error: authError } = await supabase.auth.getUser(token)
 
@@ -33,16 +39,38 @@ export async function GET(request: NextRequest) {
       )
     }
 
+    // Create authenticated Supabase client with the token
+    const authenticatedSupabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        global: {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      }
+    )
+
     // Fetch user profile with company info
-    const { data: profile, error: profileError } = await supabase
+    const { data: profile, error: profileError } = await authenticatedSupabase
       .from('users')
       .select('id, email, role, company_id, companies(id, name, status, contact_person, phone)')
       .eq('id', user.id)
       .single()
 
     if (profileError) {
+      console.error('Profile fetch error in /me:', {
+        message: profileError.message,
+        code: profileError.code,
+        details: profileError.details,
+        hint: profileError.hint,
+      })
       return NextResponse.json(
-        { error: 'Failed to fetch user profile' },
+        { 
+          error: 'Failed to fetch user profile',
+          details: profileError.message,
+        },
         { status: 500 }
       )
     }
