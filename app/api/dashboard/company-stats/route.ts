@@ -62,8 +62,13 @@ export async function GET(request: NextRequest) {
       supabase.from('job_cards').select('id, status').eq('company_id', profile.company_id),
     ])
 
+    interface JobCard {
+      id: string
+      status: string
+    }
+
     const totalJobs = allJobCardsResult.error ? 0 : (allJobCardsResult.count || (allJobCardsResult.data?.length || 0))
-    const completedJobs = allJobCardsResult.error ? 0 : (allJobCardsResult.data?.filter((j: any) => j.status === 'completed').length || 0)
+    const completedJobs = allJobCardsResult.error ? 0 : (allJobCardsResult.data?.filter((j: JobCard) => j.status === 'completed').length || 0)
     const completionRate = totalJobs > 0 ? Math.round((completedJobs / totalJobs) * 100) : 0
 
     const stats = {

@@ -7,14 +7,16 @@ import {
   UserCheck, 
   ClipboardList, 
   CheckCircle, 
-  Clock
+  Clock,
+  TrendingUp
 } from 'lucide-react'
 import { useCompanyDashboardData } from '@/lib/hooks/useDashboardData'
 import { getCurrentUser } from '@/lib/auth'
+import { User } from '@/lib/types/user'
 
 export default function CompanyDashboard() {
   const { stats, loading: statsLoading } = useCompanyDashboardData()
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<User | null>(null)
 
   useEffect(() => {
     async function loadUser() {
@@ -114,26 +116,8 @@ export default function CompanyDashboard() {
               <div className="p-6 border-b border-gray-200 dark:border-gray-700">
                 <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Recent Activity</h2>
               </div>
-              <div className="p-6 space-y-4">
-                {[
-                  { action: 'Job completed', time: '2 hours ago', type: 'success' },
-                  { action: 'New provider added', time: '5 hours ago', type: 'info' },
-                  { action: 'Job card created', time: '1 day ago', type: 'info' },
-                ].map((activity, i) => (
-                  <div key={i} className="flex items-start gap-3">
-                    <div className="mt-1 p-1.5 border border-gray-300 dark:border-gray-700">
-                      {activity.type === 'success' ? (
-                        <CheckCircle className="w-4 h-4 text-gray-700 dark:text-gray-300" />
-                      ) : (
-                        <Clock className="w-4 h-4 text-gray-700 dark:text-gray-300" />
-                      )}
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{activity.action}</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{activity.time}</p>
-                    </div>
-                  </div>
-                ))}
+              <div className="p-6">
+                <div className="text-center py-8 text-gray-500">No recent activity</div>
               </div>
             </div>
           </div>

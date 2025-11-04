@@ -12,6 +12,7 @@ import {
 import { useAdminDashboardData } from '@/lib/hooks/useDashboardData'
 import { getCurrentUser } from '@/lib/auth'
 import { getAuthToken } from '@/lib/auth'
+import { User } from '@/lib/types/user'
 
 interface PendingCompany {
   id: string
@@ -23,7 +24,7 @@ interface PendingCompany {
 
 export default function AdminDashboard() {
   const { stats, loading: statsLoading } = useAdminDashboardData()
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<User | null>(null)
   const [pendingCompanies, setPendingCompanies] = useState<PendingCompany[]>([])
   const [loadingCompanies, setLoadingCompanies] = useState(true)
 
