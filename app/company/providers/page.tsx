@@ -36,10 +36,15 @@ export default function ServiceProvidersPage() {
   }, [])
 
   useEffect(() => {
+    let isMounted = true
+
     async function fetchProviders() {
       try {
         const token = getAuthToken()
-        if (!token) return
+        if (!token) {
+          if (isMounted) setLoading(false)
+          return
+        }
 
         const response = await fetch('/api/company/providers', {
           headers: {
@@ -47,21 +52,34 @@ export default function ServiceProvidersPage() {
           },
         })
 
+        if (!isMounted) return
+
         if (!response.ok) {
-          throw new Error('Failed to fetch providers')
+          const errorData = await response.json().catch(() => ({}))
+          throw new Error(errorData.error || 'Failed to fetch providers')
         }
 
         const data = await response.json()
-        setProviders(data.providers || [])
+        if (isMounted) {
+          setProviders(data.providers || [])
+        }
       } catch (error) {
         console.error('Error fetching providers:', error)
-        notify.showError('Failed to load providers', 'Error')
+        if (isMounted) {
+          notify.showError('Failed to load providers', 'Error')
+        }
       } finally {
-        setLoading(false)
+        if (isMounted) {
+          setLoading(false)
+        }
       }
     }
 
     fetchProviders()
+
+    return () => {
+      isMounted = false
+    }
   }, [notify])
 
   const filteredProviders = providers.filter((provider) =>
