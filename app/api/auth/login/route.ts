@@ -59,6 +59,12 @@ export async function POST(request: NextRequest) {
           }
         )
 
+    console.log('Fetching profile for user:', {
+      userId: data.user.id,
+      userEmail: data.user.email,
+      usingServiceRole: !!serviceRoleKey,
+    })
+
     const { data: profile, error: profileError } = await profileSupabase
       .from('users')
       .select('id, role, company_id, companies(status)')
@@ -74,11 +80,26 @@ export async function POST(request: NextRequest) {
         hint: profileError.hint,
         userId: data.user.id,
         userEmail: data.user.email,
+        usingServiceRole: !!serviceRoleKey,
       })
       
       // If using service role key and still getting error, profile truly doesn't exist
       // If using anon key, it might be an RLS issue
       const isRLSIssue = !serviceRoleKey && (profileError.code === 'PGRST301' || profileError.message?.includes('permission'))
+      
+      // Try a direct query to verify profile exists (only if using service role)
+      if (serviceRoleKey) {
+        const directCheck = await profileSupabase
+          .from('users')
+          .select('id')
+          .eq('id', data.user.id)
+          .maybeSingle()
+        
+        console.log('Direct profile check result:', {
+          exists: !!directCheck.data,
+          error: directCheck.error?.message,
+        })
+      }
       
       // Return more detailed error for debugging
       return NextResponse.json(
@@ -90,8 +111,10 @@ export async function POST(request: NextRequest) {
             code: profileError.code,
             hint: profileError.hint,
             userId: data.user.id,
+            userEmail: data.user.email,
             rlsIssue: isRLSIssue,
             serviceRoleUsed: !!serviceRoleKey,
+            errorMessage: profileError.message,
           } : undefined,
         },
         { status: 403 }
@@ -99,14 +122,31 @@ export async function POST(request: NextRequest) {
     }
 
     if (!profile) {
+      console.error('Profile query returned null/undefined for user:', {
+        userId: data.user.id,
+        userEmail: data.user.email,
+        usingServiceRole: !!serviceRoleKey,
+      })
+      
       return NextResponse.json(
         { 
           error: 'User profile not found. Please contact support.',
-          details: 'Account exists but profile is missing'
+          details: 'Account exists but profile is missing',
+          debug: process.env.NODE_ENV === 'development' ? {
+            userId: data.user.id,
+            userEmail: data.user.email,
+            serviceRoleUsed: !!serviceRoleKey,
+          } : undefined,
         },
         { status: 403 }
       )
     }
+
+    console.log('Profile found:', {
+      userId: profile.id,
+      role: profile.role,
+      email: data.user.email,
+    })
 
     // Admins can always login (no company approval check needed)
     if (profile.role === 'admin') {
