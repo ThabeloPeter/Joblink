@@ -242,27 +242,46 @@ export async function POST(request: NextRequest) {
     }
 
     // Create provider record
+    // Try inserting with minimal required fields first
+    const providerInsertData: any = {
+      id: authData.user.id,
+      name,
+      email,
+      phone,
+      company_id: profile.company_id,
+      code: providerCode,
+    }
+
+    // Add optional fields only if they exist in schema
+    // Try to insert with status and rating if they exist
     const { data: providerData, error: providerError } = await supabase
       .from('service_providers')
-      .insert({
-        id: authData.user.id,
-        name,
-        email,
-        phone,
-        company_id: profile.company_id,
-        code: providerCode,
-        status: 'active',
-        rating: 0,
-      })
+      .insert(providerInsertData)
       .select()
       .single()
 
     if (providerError) {
-      console.error('Error creating provider:', providerError)
+      console.error('Error creating provider:', {
+        error: providerError,
+        message: providerError.message,
+        code: providerError.code,
+        details: providerError.details,
+        hint: providerError.hint,
+        data: providerInsertData,
+      })
+      
       // Try to delete the auth user if provider creation fails
-      await supabase.auth.admin.deleteUser(authData.user.id)
+      await supabase.auth.admin.deleteUser(authData.user.id).catch((err) => {
+        console.error('Failed to delete auth user:', err)
+      })
+      
       return NextResponse.json(
-        { error: 'Failed to create provider record', details: providerError.message },
+        { 
+          error: 'Failed to create provider record', 
+          details: providerError.message,
+          code: providerError.code,
+          hint: providerError.hint,
+        },
         { status: 500 }
       )
     }
