@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Header from '@/components/dashboard/Header'
 import StatCard from '@/components/dashboard/StatCard'
 import { 
@@ -14,6 +15,7 @@ import { getCurrentUser } from '@/lib/auth'
 import { User } from '@/lib/types/user'
 
 export default function CompanyDashboard() {
+  const router = useRouter()
   const { stats, loading: statsLoading } = useCompanyDashboardData()
   const [user, setUser] = useState<User | null>(null)
 
@@ -24,6 +26,19 @@ export default function CompanyDashboard() {
     }
     loadUser()
   }, [])
+
+  const handleCreateJobCard = () => {
+    router.push('/company/job-cards')
+  }
+
+  const handleAddProvider = () => {
+    router.push('/company/providers')
+  }
+
+  const handleViewReports = () => {
+    // Navigate to reports page (or show a message if it doesn't exist yet)
+    router.push('/company/reports')
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
@@ -74,7 +89,10 @@ export default function CompanyDashboard() {
                 <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Active Job Cards</h2>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Monitor your ongoing jobs</p>
               </div>
-              <button className="px-4 py-2 bg-gray-900 dark:bg-gray-700 text-white border border-gray-900 dark:border-gray-700 hover:bg-gray-800 dark:hover:bg-gray-600 transition-colors text-sm font-medium uppercase tracking-wide">
+              <button 
+                onClick={handleCreateJobCard}
+                className="px-4 py-2 bg-gray-900 dark:bg-gray-700 text-white border border-gray-900 dark:border-gray-700 hover:bg-gray-800 dark:hover:bg-gray-600 transition-colors text-sm font-medium uppercase tracking-wide"
+              >
                 + New Job Card
               </button>
             </div>
@@ -82,7 +100,10 @@ export default function CompanyDashboard() {
               <div className="space-y-3">
                 <div className="text-center py-8 text-gray-500">No active job cards</div>
               </div>
-              <button className="w-full mt-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 border border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-600 transition-colors text-sm font-medium uppercase tracking-wide">
+              <button 
+                onClick={handleCreateJobCard}
+                className="w-full mt-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 border border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-600 transition-colors text-sm font-medium uppercase tracking-wide"
+              >
                 View All Job Cards →
               </button>
             </div>
@@ -96,15 +117,24 @@ export default function CompanyDashboard() {
                 <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Quick Actions</h2>
               </div>
               <div className="p-6 space-y-3">
-                <button className="w-full px-4 py-3 bg-gray-900 dark:bg-gray-700 text-white border border-gray-900 dark:border-gray-700 hover:bg-gray-800 dark:hover:bg-gray-600 transition-colors text-sm font-medium uppercase tracking-wide flex items-center justify-center gap-2">
+                <button 
+                  onClick={handleCreateJobCard}
+                  className="w-full px-4 py-3 bg-gray-900 dark:bg-gray-700 text-white border border-gray-900 dark:border-gray-700 hover:bg-gray-800 dark:hover:bg-gray-600 transition-colors text-sm font-medium uppercase tracking-wide flex items-center justify-center gap-2"
+                >
                   <ClipboardList className="w-4 h-4" />
                   Create Job Card
                 </button>
-                <button className="w-full px-4 py-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-600 transition-colors text-sm font-medium uppercase tracking-wide flex items-center justify-center gap-2">
+                <button 
+                  onClick={handleAddProvider}
+                  className="w-full px-4 py-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-600 transition-colors text-sm font-medium uppercase tracking-wide flex items-center justify-center gap-2"
+                >
                   <UserCheck className="w-4 h-4" />
                   Add Provider
                 </button>
-                <button className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-sm font-medium uppercase tracking-wide">
+                <button 
+                  onClick={handleViewReports}
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-sm font-medium uppercase tracking-wide"
+                >
                   View Reports
                 </button>
               </div>
