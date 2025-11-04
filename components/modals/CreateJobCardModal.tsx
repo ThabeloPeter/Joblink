@@ -24,7 +24,7 @@ type JobCardFormData = z.infer<typeof jobCardSchema>
 interface CreateJobCardModalProps {
   isOpen: boolean
   onClose: () => void
-  providers: Array<{ id: number; name: string; email: string }>
+  providers: Array<{ id: string; name: string; email: string }>
   onSubmit?: (data: JobCardFormData) => Promise<void> | void
 }
 
