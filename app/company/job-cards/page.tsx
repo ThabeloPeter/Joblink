@@ -115,13 +115,13 @@ export default function JobCardsPage() {
     dueDate: string
   }) => {
     // TODO: Replace with Supabase mutation
-    const newJobCard = {
-      id: jobCards.length + 1,
+    const newJobCard: JobCard = {
+      id: Date.now().toString(),
       title: data.title,
       description: data.description,
       provider: providers.find((p) => p.id === data.providerId)?.name || 'Unknown',
       status: 'pending',
-      priority: data.priority as 'low' | 'medium' | 'high',
+      priority: data.priority,
       location: data.location,
       createdAt: new Date().toISOString().split('T')[0],
       dueDate: data.dueDate,
