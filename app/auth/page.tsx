@@ -65,10 +65,6 @@ export default function AuthPage() {
         if (result.requiresApproval) {
           toast.error('Your account is pending admin approval. Please contact support.')
         } else {
-          // Show more detailed error message
-          const errorMsg = result.debug 
-            ? `${result.error}\n\nDebug: ${JSON.stringify(result.debug, null, 2)}`
-            : result.error || 'Login failed. Please try again.'
           toast.error(result.error || 'Login failed. Please try again.')
           
           // Also log to console for debugging
