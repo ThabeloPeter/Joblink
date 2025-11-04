@@ -88,7 +88,7 @@ export default function ReportsPage() {
             <TrendingUp className="w-16 h-16 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
             <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Reports Coming Soon</h2>
             <p className="text-gray-600 dark:text-gray-400 max-w-md mx-auto">
-              We're working on building comprehensive reporting and analytics features. 
+              We&apos;re working on building comprehensive reporting and analytics features. 
               Check back soon for detailed insights into your job cards and provider performance.
             </p>
           </div>
