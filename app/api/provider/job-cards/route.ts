@@ -78,19 +78,23 @@ export async function GET(request: NextRequest) {
     }
 
     // Format job cards
-    const formattedJobCards = (jobCards || []).map((job) => ({
-      id: job.id,
-      title: job.title,
-      description: job.description,
-      company: job.companies?.name || 'Unknown Company',
-      companyId: job.companies?.id || '',
-      status: job.status,
-      priority: job.priority,
-      location: job.location || '',
-      dueDate: job.due_date || '',
-      createdAt: job.created_at,
-      completedAt: job.completed_at,
-    }))
+    const formattedJobCards = (jobCards || []).map((job) => {
+      // Handle companies as array or object
+      const company = Array.isArray(job.companies) ? job.companies[0] : job.companies
+      return {
+        id: job.id,
+        title: job.title,
+        description: job.description,
+        company: company?.name || 'Unknown Company',
+        companyId: company?.id || '',
+        status: job.status,
+        priority: job.priority,
+        location: job.location || '',
+        dueDate: job.due_date || '',
+        createdAt: job.created_at,
+        completedAt: job.completed_at,
+      }
+    })
 
     return NextResponse.json({ jobCards: formattedJobCards })
   } catch (error) {
