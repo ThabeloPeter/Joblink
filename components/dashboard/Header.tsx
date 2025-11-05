@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Bell, Search, ChevronDown } from 'lucide-react'
 import ThemeToggle from './ThemeToggle'
 import NotificationCenter from '@/components/modals/NotificationCenter'

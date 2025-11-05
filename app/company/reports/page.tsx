@@ -3,10 +3,9 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Header from '@/components/dashboard/Header'
-import { BarChart3, FileText, Calendar, TrendingUp, ArrowLeft, Download, AlertCircle } from 'lucide-react'
+import { BarChart3, FileText, Calendar, TrendingUp, ArrowLeft, AlertCircle } from 'lucide-react'
 import { getCurrentUser, getAuthToken } from '@/lib/auth'
 import { User } from '@/lib/types/user'
-import { formatDate } from '@/lib/utils/date'
 
 interface ReportStats {
   total: number

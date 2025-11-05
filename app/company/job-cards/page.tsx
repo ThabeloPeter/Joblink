@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import Header from '@/components/dashboard/Header'
-import { ClipboardList, Plus, Search, Calendar, MapPin, User as UserIcon, ChevronLeft, ChevronRight } from 'lucide-react'
+import { ClipboardList, Plus, Search, Calendar, MapPin, User as UserIcon } from 'lucide-react'
 import CreateJobCardModal from '@/components/modals/CreateJobCardModal'
 import EditJobCardModal from '@/components/modals/EditJobCardModal'
 import ViewCompletionModal from '@/components/modals/ViewCompletionModal'
