@@ -18,35 +18,35 @@ export interface NotificationProps {
 const notificationConfig = {
   error: {
     icon: AlertCircle,
-    bgColor: 'bg-red-50',
-    borderColor: 'border-red-200',
-    iconColor: 'text-red-600',
-    titleColor: 'text-red-900',
-    textColor: 'text-red-800',
+    bgColor: 'bg-white dark:bg-gray-800',
+    borderColor: 'border-red-500 dark:border-red-600',
+    iconColor: 'text-red-600 dark:text-red-400',
+    titleColor: 'text-gray-900 dark:text-gray-100',
+    textColor: 'text-gray-700 dark:text-gray-300',
   },
   success: {
     icon: CheckCircle,
-    bgColor: 'bg-green-50',
-    borderColor: 'border-green-200',
-    iconColor: 'text-green-600',
-    titleColor: 'text-green-900',
-    textColor: 'text-green-800',
+    bgColor: 'bg-white dark:bg-gray-800',
+    borderColor: 'border-gray-300 dark:border-gray-700',
+    iconColor: 'text-gray-700 dark:text-gray-300',
+    titleColor: 'text-gray-900 dark:text-gray-100',
+    textColor: 'text-gray-700 dark:text-gray-300',
   },
   info: {
     icon: Info,
-    bgColor: 'bg-blue-50',
-    borderColor: 'border-blue-200',
-    iconColor: 'text-blue-600',
-    titleColor: 'text-blue-900',
-    textColor: 'text-blue-800',
+    bgColor: 'bg-white dark:bg-gray-800',
+    borderColor: 'border-gray-300 dark:border-gray-700',
+    iconColor: 'text-gray-700 dark:text-gray-300',
+    titleColor: 'text-gray-900 dark:text-gray-100',
+    textColor: 'text-gray-700 dark:text-gray-300',
   },
   warning: {
     icon: AlertTriangle,
-    bgColor: 'bg-yellow-50',
-    borderColor: 'border-yellow-200',
-    iconColor: 'text-yellow-600',
-    titleColor: 'text-yellow-900',
-    textColor: 'text-yellow-800',
+    bgColor: 'bg-white dark:bg-gray-800',
+    borderColor: 'border-gray-300 dark:border-gray-700',
+    iconColor: 'text-gray-700 dark:text-gray-300',
+    titleColor: 'text-gray-900 dark:text-gray-100',
+    textColor: 'text-gray-700 dark:text-gray-300',
   },
 }
 
@@ -75,7 +75,7 @@ export default function Notification({
       initial={{ opacity: 0, y: -50, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
-      className={`${config.bgColor} ${config.borderColor} border-2 rounded-lg shadow-lg p-4 min-w-[300px] max-w-md`}
+      className={`${config.bgColor} ${config.borderColor} border rounded-none shadow-none p-4 min-w-[300px] max-w-md`}
     >
       <div className="flex items-start gap-3">
         <div className={`flex-shrink-0 ${config.iconColor}`}>
@@ -92,7 +92,7 @@ export default function Notification({
         {onClose && (
           <button
             onClick={onClose}
-            className={`flex-shrink-0 ${config.textColor} hover:opacity-70 transition-opacity`}
+            className="flex-shrink-0 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors p-1"
           >
             <X className="w-4 h-4" />
           </button>
