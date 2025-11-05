@@ -1,20 +1,23 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Header from '@/components/dashboard/Header'
 import { Save, Building2, Mail, Phone, User, Lock, Bell, Shield } from 'lucide-react'
 import { useNotify } from '@/components/ui/NotificationProvider'
+import { getAuthToken, getCurrentUser } from '@/lib/auth'
 
 export default function SettingsPage() {
   const notify = useNotify()
   const [isSaving, setIsSaving] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [currentUser, setCurrentUser] = useState<any>(null)
   
   const [companyInfo, setCompanyInfo] = useState({
-    name: 'Acme Corporation',
-    email: 'contact@acme.com',
-    phone: '+1 234 567 8900',
-    contactPerson: 'John Manager',
-    address: '123 Business Street, City, State 12345',
+    name: '',
+    email: '',
+    phone: '',
+    contactPerson: '',
+    address: '',
   })
 
   const [notifications, setNotifications] = useState({
@@ -29,12 +32,144 @@ export default function SettingsPage() {
     sessionTimeout: '30',
   })
 
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  })
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const token = getAuthToken()
+        if (!token) {
+          notify.showError('Please log in to view settings')
+          return
+        }
+
+        const user = await getCurrentUser()
+        setCurrentUser(user)
+
+        const response = await fetch('/api/company/settings', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+
+        if (!response.ok) {
+          const error = await response.json()
+          throw new Error(error.error || 'Failed to load settings')
+        }
+
+        const data = await response.json()
+        if (data.success && data.company) {
+          setCompanyInfo({
+            name: data.company.name || '',
+            email: data.company.email || '',
+            phone: data.company.phone || '',
+            contactPerson: data.company.contactPerson || '',
+            address: data.company.address || '',
+          })
+        }
+      } catch (error: any) {
+        console.error('Error loading settings:', error)
+        notify.showError(error.message || 'Failed to load settings')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadData()
+  }, [notify])
+
   const handleSave = async () => {
     setIsSaving(true)
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-    setIsSaving(false)
-    notify.showSuccess('Settings saved successfully')
+    try {
+      const token = getAuthToken()
+      if (!token) {
+        notify.showError('Please log in to save settings')
+        return
+      }
+
+      const response = await fetch('/api/company/settings', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(companyInfo),
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to save settings')
+      }
+
+      notify.showSuccess('Settings saved successfully')
+    } catch (error: any) {
+      console.error('Error saving settings:', error)
+      notify.showError(error.message || 'Failed to save settings')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const handlePasswordChange = async () => {
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      notify.showError('New passwords do not match')
+      return
+    }
+
+    if (passwordData.newPassword.length < 6) {
+      notify.showError('New password must be at least 6 characters')
+      return
+    }
+
+    setIsSaving(true)
+    try {
+      const token = getAuthToken()
+      if (!token) {
+        notify.showError('Please log in to change password')
+        return
+      }
+
+      const response = await fetch('/api/auth/change-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          currentPassword: passwordData.currentPassword,
+          newPassword: passwordData.newPassword,
+        }),
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to change password')
+      }
+
+      notify.showSuccess('Password changed successfully')
+      setPasswordData({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: '',
+      })
+    } catch (error: any) {
+      console.error('Error changing password:', error)
+      notify.showError(error.message || 'Failed to change password')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
+        <div className="text-gray-600 dark:text-gray-400">Loading settings...</div>
+      </div>
+    )
   }
 
   return (
@@ -42,9 +177,9 @@ export default function SettingsPage() {
       <Header 
         title="Settings"
         user={{
-          name: 'Company User',
-          email: 'user@company.com',
-          role: 'Company Manager'
+          name: currentUser?.company?.contactPerson || currentUser?.email || 'Company User',
+          email: currentUser?.email || 'user@company.com',
+          role: currentUser?.role === 'company' ? 'Company Manager' : 'User'
         }}
       />
       
@@ -246,6 +381,8 @@ export default function SettingsPage() {
               </label>
               <input
                 type="password"
+                value={passwordData.currentPassword}
+                onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
                 placeholder="Enter current password"
                 className="w-full px-4 py-3 border-2 border-gray-400 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
               />
@@ -256,6 +393,8 @@ export default function SettingsPage() {
               </label>
               <input
                 type="password"
+                value={passwordData.newPassword}
+                onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
                 placeholder="Enter new password"
                 className="w-full px-4 py-3 border-2 border-gray-400 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
               />
@@ -266,10 +405,19 @@ export default function SettingsPage() {
               </label>
               <input
                 type="password"
+                value={passwordData.confirmPassword}
+                onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
                 placeholder="Confirm new password"
                 className="w-full px-4 py-3 border-2 border-gray-400 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
               />
             </div>
+            <button
+              onClick={handlePasswordChange}
+              disabled={isSaving || !passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword}
+              className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Change Password
+            </button>
           </div>
         </div>
 

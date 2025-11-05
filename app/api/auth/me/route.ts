@@ -7,6 +7,7 @@ interface CompanyData {
   status: string
   contact_person: string
   phone: string
+  address?: string
 }
 
 export async function GET(request: NextRequest) {
@@ -59,7 +60,7 @@ export async function GET(request: NextRequest) {
     // Fetch user profile with company info
     const { data: profile, error: profileError } = await profileSupabase
       .from('users')
-      .select('id, email, role, company_id, companies(id, name, status, contact_person, phone)')
+      .select('id, email, role, company_id, companies(id, name, status, contact_person, phone, address)')
       .eq('id', user.id)
       .single()
 
@@ -96,6 +97,7 @@ export async function GET(request: NextRequest) {
           status: companyData.status,
           contactPerson: companyData.contact_person,
           phone: companyData.phone,
+          address: companyData.address || '',
         } : null,
       },
     })

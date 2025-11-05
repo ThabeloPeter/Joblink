@@ -1,13 +1,16 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Header from '@/components/dashboard/Header'
 import { Settings, Save, Bell, Database, Mail, Shield } from 'lucide-react'
 import { useNotify } from '@/components/ui/NotificationProvider'
+import { getAuthToken, getCurrentUser } from '@/lib/auth'
 
 export default function AdminSettingsPage() {
   const notify = useNotify()
   const [isSaving, setIsSaving] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [currentUser, setCurrentUser] = useState<any>(null)
 
   // General Settings
   const [platformName, setPlatformName] = useState('JobLink')
@@ -30,10 +33,33 @@ export default function AdminSettingsPage() {
   const [enableAnalytics, setEnableAnalytics] = useState(true)
   const [autoBackup, setAutoBackup] = useState(true)
 
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const user = await getCurrentUser()
+        setCurrentUser(user)
+        
+        // Set support email from user email if available
+        if (user?.email) {
+          const emailDomain = user.email.split('@')[1]
+          setSupportEmail(`support@${emailDomain}`)
+        }
+      } catch (error: any) {
+        console.error('Error loading admin data:', error)
+        notify.showError(error.message || 'Failed to load settings')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadData()
+  }, [notify])
+
   const handleSave = async () => {
     setIsSaving(true)
     try {
-      // TODO: Replace with Supabase mutation
+      // TODO: Replace with Supabase mutation for platform settings
+      // For now, we'll just save locally or in a settings table if it exists
       await new Promise((resolve) => setTimeout(resolve, 1000))
       notify.showSuccess('Settings saved successfully!', 'Success')
     } catch {
@@ -43,13 +69,21 @@ export default function AdminSettingsPage() {
     }
   }
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
+        <div className="text-gray-600 dark:text-gray-400">Loading settings...</div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       <Header
         title="Settings"
         user={{
-          name: 'Admin User',
-          email: 'admin@joblink.com',
+          name: currentUser?.email?.split('@')[0] || 'Admin User',
+          email: currentUser?.email || 'admin@joblink.com',
           role: 'Administrator',
         }}
       />
