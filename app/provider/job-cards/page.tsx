@@ -507,6 +507,9 @@ export default function ProviderJobCardsPage() {
             priority: selectedJobCard.priority,
             createdAt: selectedJobCard.createdAt,
             completedAt: selectedJobCard.completedAt,
+            auditedAt: selectedJobCard.auditedAt || null,
+            completionNotes: selectedJobCard.completionNotes || null,
+            completionImages: selectedJobCard.completionImages || null,
           }}
         />
       )}
