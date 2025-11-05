@@ -81,6 +81,9 @@ export default function EditJobCardModal({
     }
   }, [jobCard, providers])
 
+  // Check if job card can be edited at all
+  const canEdit = jobCard && !['completed', 'accepted', 'declined'].includes(jobCard.status)
+
   if (!isOpen) return null
 
   if (!jobCard) {
@@ -167,14 +170,19 @@ export default function EditJobCardModal({
                   </div>
                   <div>
                     <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                      Edit Job Card
+                      {canEdit ? 'Edit Job Card' : 'View Job Card'}
                     </h2>
-                    {!canEditProvider && (
+                    {!canEdit && (
+                      <p className="text-xs text-red-600 dark:text-red-400 mt-1">
+                        This job card cannot be edited. Only pending and in_progress job cards can be edited.
+                      </p>
+                    )}
+                    {canEdit && !canEditProvider && (
                       <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
                         Provider cannot be changed once job card is accepted
                       </p>
                     )}
-                    {canEditProvider && providerChanged && (
+                    {canEdit && canEditProvider && providerChanged && (
                       <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
                         Changing provider will recall this job card
                       </p>
@@ -226,7 +234,10 @@ export default function EditJobCardModal({
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                     required
-                    className="w-full px-4 py-3 border-2 border-gray-400 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
+                    disabled={!canEdit}
+                    className={`w-full px-4 py-3 border-2 border-gray-400 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 ${
+                      !canEdit ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
                   />
                 </div>
 
@@ -240,7 +251,10 @@ export default function EditJobCardModal({
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     required
                     rows={4}
-                    className="w-full px-4 py-3 border-2 border-gray-400 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 resize-none"
+                    disabled={!canEdit}
+                    className={`w-full px-4 py-3 border-2 border-gray-400 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 resize-none ${
+                      !canEdit ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
                   />
                 </div>
 
@@ -285,7 +299,10 @@ export default function EditJobCardModal({
                       value={formData.priority}
                       onChange={(e) => setFormData({ ...formData, priority: e.target.value as 'low' | 'medium' | 'high' })}
                       required
-                      className="w-full px-4 py-3 border-2 border-gray-400 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
+                      disabled={!canEdit}
+                      className={`w-full px-4 py-3 border-2 border-gray-400 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 ${
+                        !canEdit ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
                     >
                       <option value="low">Low</option>
                       <option value="medium">Medium</option>
@@ -305,7 +322,10 @@ export default function EditJobCardModal({
                       value={formData.location}
                       onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                       required
-                      className="w-full px-4 py-3 border-2 border-gray-400 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
+                      disabled={!canEdit}
+                      className={`w-full px-4 py-3 border-2 border-gray-400 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 ${
+                        !canEdit ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
                     />
                   </div>
                   <div>
@@ -317,7 +337,10 @@ export default function EditJobCardModal({
                       value={formData.dueDate}
                       onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
                       required
-                      className="w-full px-4 py-3 border-2 border-gray-400 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
+                      disabled={!canEdit}
+                      className={`w-full px-4 py-3 border-2 border-gray-400 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 ${
+                        !canEdit ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
                     />
                   </div>
                 </div>
@@ -331,14 +354,16 @@ export default function EditJobCardModal({
                   >
                     Cancel
                   </button>
-                  <button
-                    type="submit"
-                    disabled={isSaving}
-                    className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <Save className="w-5 h-5" />
-                    {isSaving ? 'Saving...' : 'Save Changes'}
-                  </button>
+                  {canEdit && (
+                    <button
+                      type="submit"
+                      disabled={isSaving}
+                      className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <Save className="w-5 h-5" />
+                      {isSaving ? 'Saving...' : 'Save Changes'}
+                    </button>
+                  )}
                 </div>
               </form>
             </motion.div>

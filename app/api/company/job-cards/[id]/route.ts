@@ -79,6 +79,17 @@ export async function PUT(
       )
     }
 
+    // Prevent editing of completed, accepted, and declined job cards
+    if (['completed', 'accepted', 'declined'].includes(currentJobCard.status)) {
+      return NextResponse.json(
+        { 
+          error: `Cannot edit job card with status "${currentJobCard.status}"`,
+          details: 'Only pending and in_progress job cards can be edited.'
+        },
+        { status: 400 }
+      )
+    }
+
     // Verify provider belongs to the same company
     const { data: provider, error: providerError } = await supabase
       .from('service_providers')

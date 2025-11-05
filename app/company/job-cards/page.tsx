@@ -5,6 +5,7 @@ import Header from '@/components/dashboard/Header'
 import { ClipboardList, Plus, Search, Calendar, MapPin, User as UserIcon } from 'lucide-react'
 import CreateJobCardModal from '@/components/modals/CreateJobCardModal'
 import EditJobCardModal from '@/components/modals/EditJobCardModal'
+import ViewCompletionModal from '@/components/modals/ViewCompletionModal'
 import { useNotify } from '@/components/ui/NotificationProvider'
 import { getAuthToken } from '@/lib/auth'
 import { getCurrentUser } from '@/lib/auth'
@@ -22,6 +23,8 @@ interface JobCard {
   createdAt: string
   dueDate: string
   completedAt: string | null
+  completionNotes?: string | null
+  completionImages?: string[] | null
 }
 
 interface Provider {
@@ -41,6 +44,7 @@ export default function JobCardsPage() {
   const [priorityFilter, setPriorityFilter] = useState<string>('all')
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
+  const [showCompletionModal, setShowCompletionModal] = useState(false)
   const [selectedJobCard, setSelectedJobCard] = useState<JobCard | null>(null)
 
   useEffect(() => {
@@ -242,13 +246,19 @@ export default function JobCardsPage() {
   }
 
   const handleViewDetails = (job: JobCard) => {
-    // Find the provider ID for this job card
-    const provider = providers.find(p => p.name === job.provider)
-    setSelectedJobCard({
-      ...job,
-      providerId: provider?.id || '',
-    })
-    setShowEditModal(true)
+    // If job card is completed, show completion modal
+    if (job.status === 'completed') {
+      setSelectedJobCard(job)
+      setShowCompletionModal(true)
+    } else {
+      // For other statuses, show edit modal (which will be read-only for accepted/declined)
+      const provider = providers.find(p => p.name === job.provider)
+      setSelectedJobCard({
+        ...job,
+        providerId: provider?.id || '',
+      })
+      setShowEditModal(true)
+    }
   }
 
   return (
@@ -401,7 +411,7 @@ export default function JobCardsPage() {
                   onClick={() => handleViewDetails(job)}
                   className="text-gray-900 dark:text-gray-100 hover:text-gray-700 dark:hover:text-gray-300 text-sm font-medium uppercase tracking-wide"
                 >
-                  View Details →
+                  {job.status === 'completed' ? 'View Completion →' : 'View Details →'}
                 </button>
               </div>
             </div>
@@ -429,6 +439,25 @@ export default function JobCardsPage() {
         providers={providers.map(p => ({ id: p.id, name: p.name, email: p.email }))}
         onSave={handleEditJobCard}
       />
+
+      {/* View Completion Modal */}
+      {selectedJobCard && selectedJobCard.status === 'completed' && (
+        <ViewCompletionModal
+          isOpen={showCompletionModal}
+          onClose={() => {
+            setShowCompletionModal(false)
+            setSelectedJobCard(null)
+          }}
+          jobCardTitle={selectedJobCard.title}
+          jobCardId={selectedJobCard.id}
+          providerName={selectedJobCard.provider}
+          completionData={{
+            notes: selectedJobCard.completionNotes || null,
+            images: selectedJobCard.completionImages || null,
+          }}
+          completedAt={selectedJobCard.completedAt}
+        />
+      )}
     </div>
   )
 }
