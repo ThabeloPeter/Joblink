@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Header from '@/components/dashboard/Header'
 import { ClipboardList, Plus, Search, Calendar, MapPin, User as UserIcon } from 'lucide-react'
 import CreateJobCardModal from '@/components/modals/CreateJobCardModal'
+import EditJobCardModal from '@/components/modals/EditJobCardModal'
 import { useNotify } from '@/components/ui/NotificationProvider'
 import { getAuthToken } from '@/lib/auth'
 import { getCurrentUser } from '@/lib/auth'
@@ -14,6 +15,7 @@ interface JobCard {
   title: string
   description: string
   provider: string
+  providerId?: string
   status: string
   priority: string
   location: string
@@ -38,6 +40,8 @@ export default function JobCardsPage() {
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [priorityFilter, setPriorityFilter] = useState<string>('all')
   const [showCreateModal, setShowCreateModal] = useState(false)
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [selectedJobCard, setSelectedJobCard] = useState<JobCard | null>(null)
 
   useEffect(() => {
     async function loadUser() {
@@ -166,6 +170,85 @@ export default function JobCardsPage() {
       console.error('Error creating job card:', error)
       notify.showError('Failed to create job card. Please try again.', 'Error')
     }
+  }
+
+  const handleEditJobCard = async (data: {
+    id: string
+    title: string
+    description: string
+    providerId: string
+    priority: string
+    location: string
+    dueDate: string
+  }) => {
+    try {
+      const token = getAuthToken()
+      if (!token) {
+        notify.showError('Authentication required', 'Error')
+        return
+      }
+
+      const response = await fetch(`/api/company/job-cards/${data.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          title: data.title,
+          description: data.description,
+          providerId: data.providerId,
+          priority: data.priority,
+          location: data.location,
+          dueDate: data.dueDate,
+        }),
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        console.error('Job card update error:', {
+          status: response.status,
+          error: result.error,
+          details: result.details,
+        })
+        notify.showError(
+          result.error || 'Failed to update job card',
+          result.details ? `Error: ${result.details}` : 'Error'
+        )
+        throw new Error(result.error || 'Failed to update job card')
+      }
+
+      notify.showSuccess('Job card updated successfully!', 'Success')
+
+      // Refresh job cards list
+      const jobCardsResponse = await fetch('/api/company/job-cards', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      if (jobCardsResponse.ok) {
+        const jobCardsData = await jobCardsResponse.json()
+        setJobCards(jobCardsData.jobCards || [])
+      }
+
+      setShowEditModal(false)
+      setSelectedJobCard(null)
+    } catch (error) {
+      console.error('Error updating job card:', error)
+      throw error
+    }
+  }
+
+  const handleViewDetails = (job: JobCard) => {
+    // Find the provider ID for this job card
+    const provider = providers.find(p => p.name === job.provider)
+    setSelectedJobCard({
+      ...job,
+      providerId: provider?.id || '',
+    })
+    setShowEditModal(true)
   }
 
   return (
@@ -314,7 +397,10 @@ export default function JobCardsPage() {
                 }`}>
                   {job.status.replace('_', ' ')}
                 </span>
-                <button className="text-gray-900 dark:text-gray-100 hover:text-gray-700 dark:hover:text-gray-300 text-sm font-medium uppercase tracking-wide">
+                <button
+                  onClick={() => handleViewDetails(job)}
+                  className="text-gray-900 dark:text-gray-100 hover:text-gray-700 dark:hover:text-gray-300 text-sm font-medium uppercase tracking-wide"
+                >
                   View Details →
                 </button>
               </div>
@@ -330,6 +416,18 @@ export default function JobCardsPage() {
         onClose={() => setShowCreateModal(false)}
         providers={providers.map(p => ({ id: p.id, name: p.name, email: p.email }))}
         onSubmit={handleCreateJobCard}
+      />
+
+      {/* Edit Job Card Modal */}
+      <EditJobCardModal
+        isOpen={showEditModal}
+        onClose={() => {
+          setShowEditModal(false)
+          setSelectedJobCard(null)
+        }}
+        jobCard={selectedJobCard}
+        providers={providers.map(p => ({ id: p.id, name: p.name, email: p.email }))}
+        onSave={handleEditJobCard}
       />
     </div>
   )

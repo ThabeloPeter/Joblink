@@ -86,6 +86,7 @@ export async function GET(request: NextRequest) {
         title: job.title || 'Untitled Job Card',
         description: job.description || '',
         provider: provider?.name || 'Unassigned',
+        providerId: job.provider_id || '',
         status: job.status || 'pending',
         priority: job.priority || 'medium',
         location: job.location || '',
