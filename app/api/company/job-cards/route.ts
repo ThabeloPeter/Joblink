@@ -84,6 +84,9 @@ export async function GET(request: NextRequest) {
 
     const formattedJobCards = (jobCards || []).map((job) => {
       const provider = Array.isArray(job.service_providers) ? job.service_providers[0] : job.service_providers
+      
+      // Safely access audited_at which may not exist in the database yet
+      const jobWithAudit = job as typeof job & { audited_at?: string | null }
 
       return {
         id: job.id,
@@ -97,7 +100,7 @@ export async function GET(request: NextRequest) {
         createdAt: job.created_at?.split('T')[0] || '',
         dueDate: job.due_date?.split('T')[0] || '',
         completedAt: job.completed_at?.split('T')[0] || null,
-        auditedAt: (job as any).audited_at?.split('T')[0] || null, // Handle column that may not exist yet
+        auditedAt: jobWithAudit.audited_at?.split('T')[0] || null, // Handle column that may not exist yet
         completionNotes: job.completion_notes || null,
         completionImages: job.completion_images || null,
       }
