@@ -24,6 +24,8 @@ interface JobCard {
   createdAt: string
   completedAt: string | null
   auditedAt?: string | null
+  completionNotes?: string | null
+  completionImages?: string[] | null
 }
 
 export default function ProviderJobCardsPage() {

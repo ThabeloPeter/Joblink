@@ -1,7 +1,8 @@
 'use client'
 
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Calendar, MapPin, User as UserIcon, Building2, FileText, CheckCircle } from 'lucide-react'
+import Image from 'next/image'
+import { X, Calendar, MapPin, User as UserIcon, Building2, FileText, CheckCircle, Image as ImageIcon } from 'lucide-react'
 
 interface JobCard {
   id: string
@@ -16,6 +17,8 @@ interface JobCard {
   dueDate: string
   completedAt: string | null
   auditedAt?: string | null
+  completionNotes?: string | null
+  completionImages?: string[] | null
 }
 
 interface ViewJobCardModalProps {
@@ -276,6 +279,64 @@ export default function ViewJobCardModal({
                         <span className="text-gray-900 dark:text-gray-100 font-medium">
                           {jobCard.auditedAt}
                         </span>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Completion Details - Only show for completed job cards */}
+                {jobCard.status === 'completed' && (jobCard.completionNotes || jobCard.completionImages) && (
+                  <div className="pt-4 border-t border-gray-200 dark:border-gray-700 space-y-6">
+                    {/* Completion Notes */}
+                    {jobCard.completionNotes && (
+                      <div>
+                        <div className="flex items-center gap-2 mb-3">
+                          <FileText className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                            Completion Notes
+                          </h3>
+                        </div>
+                        <div className="p-4 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg">
+                          <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                            {jobCard.completionNotes}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Completion Images */}
+                    {jobCard.completionImages && (
+                      <div>
+                        <div className="flex items-center gap-2 mb-3">
+                          <ImageIcon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                            Completion Images ({Array.isArray(jobCard.completionImages) ? jobCard.completionImages.length : 1})
+                          </h3>
+                        </div>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                          {(Array.isArray(jobCard.completionImages) ? jobCard.completionImages : [jobCard.completionImages]).map((imageUrl, index) => (
+                            <div
+                              key={index}
+                              className="relative group aspect-square bg-gray-100 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden"
+                            >
+                              <Image
+                                src={imageUrl}
+                                alt={`Completion image ${index + 1}`}
+                                fill
+                                className="object-cover"
+                                unoptimized
+                              />
+                              <a
+                                href={imageUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="absolute inset-0 bg-black/0 hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100"
+                              >
+                                <span className="text-white text-sm font-medium">View Full Size</span>
+                              </a>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     )}
                   </div>
