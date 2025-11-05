@@ -97,6 +97,7 @@ export async function GET(request: NextRequest) {
             status: provider.status || 'active',
             jobCardsCompleted: completedCount || 0,
             rating: provider.rating || 0,
+            code: provider.code || '',
           }
         } catch (error) {
           console.error(`Error fetching stats for provider ${provider.id}:`, error)
@@ -108,6 +109,7 @@ export async function GET(request: NextRequest) {
             status: provider.status || 'active',
             jobCardsCompleted: 0,
             rating: provider.rating || 0,
+            code: provider.code || '',
           }
         }
       })

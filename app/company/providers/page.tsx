@@ -17,6 +17,7 @@ interface Provider {
   status: string
   jobCardsCompleted: number
   rating: number
+  code?: string
 }
 
 export default function ServiceProvidersPage() {
@@ -278,6 +279,9 @@ export default function ServiceProvidersPage() {
                       Contact
                     </th>
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                      Login Code
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
                       Status
                     </th>
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
@@ -309,6 +313,27 @@ export default function ServiceProvidersPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <p className="text-sm text-gray-900 dark:text-gray-100">{provider.phone}</p>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center gap-2">
+                        <code className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 font-mono text-sm font-semibold border border-gray-300 dark:border-gray-600 rounded">
+                          {provider.code || 'N/A'}
+                        </code>
+                        {provider.code && (
+                          <button
+                            onClick={() => {
+                              navigator.clipboard.writeText(provider.code || '')
+                              notify.showSuccess('Login code copied to clipboard', 'Copied')
+                            }}
+                            className="p-1 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+                            title="Copy code"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                          </button>
+                        )}
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`px-3 py-1 rounded-full text-xs font-medium ${
