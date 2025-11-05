@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { getCurrentUser, getAuthToken, removeAuthToken, isAdmin, isCompanyUser } from '@/lib/auth'
+import { DashboardSkeleton } from '@/components/ui/Skeleton'
 
 interface ProtectedRouteProps {
   children: React.ReactNode
@@ -60,14 +61,7 @@ export default function ProtectedRoute({
   }, [router, allowedRoles, redirectTo])
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          <p className="mt-4 text-gray-600 dark:text-gray-400">Loading...</p>
-        </div>
-      </div>
-    )
+    return <DashboardSkeleton />
   }
 
   if (!isAuthorized) {

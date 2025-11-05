@@ -229,8 +229,20 @@ export default function CompaniesPage() {
         {/* Companies Table */}
         <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 overflow-hidden">
           {loading ? (
-            <div className="text-center py-12">
-              <p className="text-gray-600 dark:text-gray-400">Loading companies...</p>
+            <div className="p-4 sm:p-6">
+              <div className="space-y-4 animate-pulse">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <div key={i} className="flex items-center gap-4 pb-4 border-b border-gray-200 dark:border-gray-700 last:border-0">
+                    <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                    <div className="flex-1 space-y-2">
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+                      <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+                    </div>
+                    <div className="h-6 w-20 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                    <div className="h-6 w-16 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                  </div>
+                ))}
+              </div>
             </div>
           ) : (
             <div className="overflow-x-auto">

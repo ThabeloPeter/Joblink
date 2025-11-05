@@ -45,7 +45,16 @@ export default function ProviderSettingsPage() {
           </div>
           <div className="p-6 space-y-4">
             {loading ? (
-              <div className="text-center py-8 text-gray-500">Loading...</div>
+              <div className="space-y-4 animate-pulse">
+                <div>
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16 mb-2"></div>
+                  <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                </div>
+                <div>
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20 mb-2"></div>
+                  <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                </div>
+              </div>
             ) : (
               <>
                 <div>

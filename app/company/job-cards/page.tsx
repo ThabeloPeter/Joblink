@@ -449,9 +449,31 @@ export default function JobCardsPage() {
         {/* Job Cards Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
           {loading ? (
-            <div className="col-span-full text-center py-12">
-              <p className="text-gray-600 dark:text-gray-400">Loading job cards...</p>
-            </div>
+            <>
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <div key={i} className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 p-4 sm:p-6 animate-pulse">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-start gap-3 flex-1">
+                      <div className="w-3 h-3 rounded-full bg-gray-200 dark:bg-gray-700 mt-2"></div>
+                      <div className="flex-1">
+                        <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
+                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full mb-1"></div>
+                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-2/3"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="space-y-3 mb-4">
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-2/3"></div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/3"></div>
+                  </div>
+                  <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <div className="h-6 w-20 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+                    <div className="h-8 w-24 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                  </div>
+                </div>
+              ))}
+            </>
           ) : filteredJobCards.length === 0 ? (
             <div className="col-span-full text-center py-12">
               <ClipboardList className="w-12 h-12 text-gray-400 dark:text-gray-600 mx-auto mb-4" />

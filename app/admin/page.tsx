@@ -167,7 +167,23 @@ export default function AdminDashboard() {
             </div>
             <div className="p-4 sm:p-6">
               {loadingCompanies ? (
-                <div className="text-center py-8 text-gray-500">Loading...</div>
+                <div className="space-y-3 sm:space-y-4">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 p-3 sm:p-4 border border-gray-300 dark:border-gray-700 animate-pulse">
+                      <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-200 dark:bg-gray-700 flex-shrink-0"></div>
+                        <div className="min-w-0 flex-1 space-y-2">
+                          <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+                          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+                        </div>
+                      </div>
+                      <div className="flex gap-2 w-full sm:w-auto">
+                        <div className="h-9 bg-gray-200 dark:bg-gray-700 rounded flex-1 sm:flex-none sm:w-20"></div>
+                        <div className="h-9 bg-gray-200 dark:bg-gray-700 rounded flex-1 sm:flex-none sm:w-20"></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               ) : pendingCompanies.length === 0 ? (
                 <div className="text-center py-8 text-gray-500">No pending company approvals</div>
               ) : (
