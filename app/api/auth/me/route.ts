@@ -58,9 +58,10 @@ export async function GET(request: NextRequest) {
         )
 
     // Fetch user profile with company info
+    // Note: address field may not exist in all databases, so we'll handle it gracefully
     const { data: profile, error: profileError } = await profileSupabase
       .from('users')
-      .select('id, email, role, company_id, companies(id, name, status, contact_person, phone, address)')
+      .select('id, email, role, company_id, companies(id, name, status, contact_person, phone)')
       .eq('id', user.id)
       .single()
 
@@ -97,7 +98,6 @@ export async function GET(request: NextRequest) {
           status: companyData.status,
           contactPerson: companyData.contact_person,
           phone: companyData.phone,
-          address: companyData.address || '',
         } : null,
       },
     })
