@@ -50,6 +50,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch job cards for this company
+    // Note: audited_at may not exist yet, so we handle it gracefully
     const { data: jobCards, error: jobCardsError } = await supabase
       .from('job_cards')
       .select(`
@@ -62,7 +63,6 @@ export async function GET(request: NextRequest) {
         created_at,
         due_date,
         completed_at,
-        audited_at,
         completion_notes,
         completion_images,
         provider_id,
@@ -97,7 +97,7 @@ export async function GET(request: NextRequest) {
         createdAt: job.created_at?.split('T')[0] || '',
         dueDate: job.due_date?.split('T')[0] || '',
         completedAt: job.completed_at?.split('T')[0] || null,
-        auditedAt: job.audited_at?.split('T')[0] || null,
+        auditedAt: (job as any).audited_at?.split('T')[0] || null, // Handle column that may not exist yet
         completionNotes: job.completion_notes || null,
         completionImages: job.completion_images || null,
       }

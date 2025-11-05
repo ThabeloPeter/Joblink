@@ -60,7 +60,10 @@ export default function JobCardsPage() {
     async function fetchData() {
       try {
         const token = getAuthToken()
-        if (!token) return
+        if (!token) {
+          setLoading(false)
+          return
+        }
 
         const [jobCardsResponse, providersResponse] = await Promise.all([
           fetch('/api/company/job-cards', {
@@ -74,11 +77,17 @@ export default function JobCardsPage() {
         if (jobCardsResponse.ok) {
           const jobCardsData = await jobCardsResponse.json()
           setJobCards(jobCardsData.jobCards || [])
+        } else {
+          const errorData = await jobCardsResponse.json().catch(() => ({ error: 'Unknown error' }))
+          console.error('Failed to fetch job cards:', errorData)
+          notify.showError(errorData.error || 'Failed to load job cards', 'Error')
         }
 
         if (providersResponse.ok) {
           const providersData = await providersResponse.json()
           setProviders(providersData.providers || [])
+        } else {
+          console.error('Failed to fetch providers')
         }
       } catch (error) {
         console.error('Error fetching data:', error)
