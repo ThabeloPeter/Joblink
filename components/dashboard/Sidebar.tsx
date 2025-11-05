@@ -11,14 +11,15 @@ import {
   Settings, 
   LogOut,
   UserCheck,
-  ClipboardList
+  ClipboardList,
+  ChevronLeft
 } from 'lucide-react'
 import clsx from 'clsx'
 import { removeAuthToken, getAuthToken } from '@/lib/auth'
 
 interface SidebarProps {
   userRole: 'admin' | 'company'
-  onLogout?: () => void
+  onToggle?: () => void
 }
 
 const adminNavItems = [
@@ -36,7 +37,7 @@ const companyNavItems = [
   { href: '/company/settings', icon: Settings, label: 'Settings' },
 ]
 
-export default function Sidebar({ userRole, onLogout }: SidebarProps) {
+export default function Sidebar({ userRole, onToggle }: SidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
   const [isLoggingOut, setIsLoggingOut] = useState(false)
@@ -59,11 +60,6 @@ export default function Sidebar({ userRole, onLogout }: SidebarProps) {
         // Clear local storage token
         removeAuthToken()
         
-        // Hide sidebar if callback provided
-        if (onLogout) {
-          onLogout()
-        }
-        
         // Redirect to login page
         router.push('/auth')
       } else {
@@ -71,18 +67,12 @@ export default function Sidebar({ userRole, onLogout }: SidebarProps) {
         console.error('Logout error:', error)
         // Still clear token and redirect even if API fails
         removeAuthToken()
-        if (onLogout) {
-          onLogout()
-        }
         router.push('/auth')
       }
     } catch (error) {
       console.error('Logout error:', error)
       // Still clear token and redirect even if API fails
       removeAuthToken()
-      if (onLogout) {
-        onLogout()
-      }
       router.push('/auth')
     } finally {
       setIsLoggingOut(false)
@@ -92,10 +82,19 @@ export default function Sidebar({ userRole, onLogout }: SidebarProps) {
   return (
     <div className="fixed left-0 top-0 h-full w-64 bg-gray-900 dark:bg-gray-950 border-r border-gray-800 dark:border-gray-900 flex flex-col z-40">
       {/* Logo */}
-      <div className="h-16 flex items-center px-6 border-b border-gray-800 dark:border-gray-900">
+      <div className="h-16 flex items-center justify-between px-6 border-b border-gray-800 dark:border-gray-900">
         <h1 className="text-xl font-bold text-white uppercase tracking-wide">
           JobLink
         </h1>
+        {onToggle && (
+          <button
+            onClick={onToggle}
+            className="p-1.5 rounded-lg text-gray-300 hover:text-white hover:bg-gray-800 transition-colors"
+            title="Toggle sidebar"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+        )}
       </div>
 
       {/* Navigation */}
