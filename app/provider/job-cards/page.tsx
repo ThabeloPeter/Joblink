@@ -96,7 +96,6 @@ export default function ProviderJobCardsPage() {
   }
 
   const handleStatusUpdateClick = (jobCardId: string, status: 'accepted' | 'declined') => {
-    const jobCard = jobCards.find(j => j.id === jobCardId)
     setPendingAction({ jobCardId, status })
     setShowConfirmModal(true)
   }
