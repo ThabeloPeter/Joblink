@@ -49,7 +49,12 @@ export async function GET(request: NextRequest) {
       // No additional filter needed
     } else if (profile.role === 'company') {
       // Company users see notifications related to their company
-      query = query.or(`company_id.eq.${profile.company_id},actor_type.eq.company`)
+      // This includes notifications where:
+      // - company_id matches their company_id (job card actions by providers)
+      // - actor_type is 'company' (actions by company users)
+      if (profile.company_id) {
+        query = query.eq('company_id', profile.company_id)
+      }
     } else if (profile.role === 'provider') {
       // Providers see notifications related to them
       query = query.or(`actor_type.eq.provider,entity_type.eq.job_card`)

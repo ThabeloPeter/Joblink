@@ -8,6 +8,7 @@ import { getAuthToken } from '@/lib/auth'
 import { getCurrentUser } from '@/lib/auth'
 import { User } from '@/lib/types/user'
 import ViewJobCardModal from '@/components/modals/ViewJobCardModal'
+import ConfirmActionModal from '@/components/modals/ConfirmActionModal'
 
 interface JobCard {
   id: string
@@ -32,6 +33,9 @@ export default function ProviderJobCardsPage() {
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [selectedJobCard, setSelectedJobCard] = useState<JobCard | null>(null)
   const [showViewModal, setShowViewModal] = useState(false)
+  const [showConfirmModal, setShowConfirmModal] = useState(false)
+  const [pendingAction, setPendingAction] = useState<{ jobCardId: string; status: 'accepted' | 'declined' } | null>(null)
+  const [isUpdating, setIsUpdating] = useState(false)
 
   useEffect(() => {
     async function loadUser() {
@@ -91,7 +95,71 @@ export default function ProviderJobCardsPage() {
     low: 'bg-green-500',
   }
 
-  const handleStatusUpdate = async (jobCardId: string, newStatus: 'accepted' | 'declined' | 'in_progress' | 'completed') => {
+  const handleStatusUpdateClick = (jobCardId: string, status: 'accepted' | 'declined') => {
+    const jobCard = jobCards.find(j => j.id === jobCardId)
+    setPendingAction({ jobCardId, status })
+    setShowConfirmModal(true)
+  }
+
+  const handleConfirmAction = async () => {
+    if (!pendingAction) return
+
+    setIsUpdating(true)
+    try {
+      const token = getAuthToken()
+      if (!token) {
+        notify.showError('Authentication required', 'Error')
+        setShowConfirmModal(false)
+        setPendingAction(null)
+        setIsUpdating(false)
+        return
+      }
+
+      const response = await fetch(`/api/provider/job-cards/${pendingAction.jobCardId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ status: pendingAction.status }),
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        notify.showError(result.error || 'Failed to update job card', 'Error')
+        setShowConfirmModal(false)
+        setPendingAction(null)
+        setIsUpdating(false)
+        return
+      }
+
+      // Update local state
+      setJobCards((prev) =>
+        prev.map((job) =>
+          job.id === pendingAction.jobCardId
+            ? { ...job, status: pendingAction.status }
+            : job
+        )
+      )
+
+      const statusMessages: Record<string, string> = {
+        accepted: 'Job card accepted',
+        declined: 'Job card declined',
+      }
+
+      notify.showSuccess(statusMessages[pendingAction.status] || 'Job card updated', 'Success')
+      setShowConfirmModal(false)
+      setPendingAction(null)
+    } catch (error) {
+      console.error('Error updating job card:', error)
+      notify.showError('Failed to update job card. Please try again.', 'Error')
+    } finally {
+      setIsUpdating(false)
+    }
+  }
+
+  const handleStatusUpdate = async (jobCardId: string, newStatus: 'in_progress' | 'completed') => {
     try {
       const token = getAuthToken()
       if (!token) {
@@ -125,8 +193,6 @@ export default function ProviderJobCardsPage() {
       )
 
       const statusMessages: Record<string, string> = {
-        accepted: 'Job card accepted',
-        declined: 'Job card declined',
         in_progress: 'Job card marked as in progress',
         completed: 'Job card marked as completed',
       }
@@ -308,14 +374,14 @@ export default function ProviderJobCardsPage() {
                           {job.status === 'pending' && (
                             <>
                               <button
-                                onClick={() => handleStatusUpdate(job.id, 'accepted')}
+                                onClick={() => handleStatusUpdateClick(job.id, 'accepted')}
                                 className="px-3 py-1.5 text-sm font-medium text-green-700 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 border border-green-300 dark:border-green-700 hover:border-green-400 dark:hover:border-green-600 transition-colors uppercase tracking-wide flex items-center gap-1"
                               >
                                 <CheckCircle className="w-4 h-4" />
                                 Accept
                               </button>
                               <button
-                                onClick={() => handleStatusUpdate(job.id, 'declined')}
+                                onClick={() => handleStatusUpdateClick(job.id, 'declined')}
                                 className="px-3 py-1.5 text-sm font-medium text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 border border-red-300 dark:border-red-700 hover:border-red-400 dark:hover:border-red-600 transition-colors uppercase tracking-wide flex items-center gap-1"
                               >
                                 <XCircle className="w-4 h-4" />
@@ -381,8 +447,28 @@ export default function ProviderJobCardsPage() {
             completedAt: selectedJobCard.completedAt,
           }}
         />
-      )}
-    </div>
-  )
-}
+
+        {/* Confirmation Modal */}
+        {pendingAction && (
+          <ConfirmActionModal
+            isOpen={showConfirmModal}
+            onClose={() => {
+              setShowConfirmModal(false)
+              setPendingAction(null)
+            }}
+            onConfirm={handleConfirmAction}
+            title={pendingAction.status === 'accepted' ? 'Accept Job Card?' : 'Decline Job Card?'}
+            message={
+              pendingAction.status === 'accepted'
+                ? 'Are you sure you want to accept this job card? You will be able to start working on it once accepted.'
+                : 'Are you sure you want to decline this job card? This action cannot be undone. The company will be notified.'
+            }
+            confirmLabel={pendingAction.status === 'accepted' ? 'Accept' : 'Decline'}
+            type={pendingAction.status === 'accepted' ? 'accept' : 'decline'}
+            isLoading={isUpdating}
+          />
+        )}
+      </div>
+    )
+  }
 
