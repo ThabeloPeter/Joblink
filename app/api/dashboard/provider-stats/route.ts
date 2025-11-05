@@ -92,8 +92,8 @@ export async function GET(request: NextRequest) {
       .gte('completed_at', today.toISOString())
 
     // Calculate completion rate
-    const completionRate = totalCount > 0 
-      ? Math.round((completedCount / totalCount) * 100) 
+    const completionRate = (totalCount || 0) > 0 
+      ? Math.round(((completedCount || 0) / (totalCount || 1)) * 100) 
       : 0
 
     return NextResponse.json({
