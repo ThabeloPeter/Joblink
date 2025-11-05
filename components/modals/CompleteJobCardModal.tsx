@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
 import { X, Upload, XCircle, CheckCircle } from 'lucide-react'
 import { useNotify } from '@/components/ui/NotificationProvider'
-import { createClient } from '@supabase/supabase-js'
 import { getAuthToken } from '@/lib/auth'
 
 interface CompleteJobCardModalProps {
@@ -50,17 +49,6 @@ export default function CompleteJobCardModal({
       return
     }
 
-    // Create authenticated Supabase client for storage
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    const authenticatedSupabase = createClient(supabaseUrl, supabaseAnonKey, {
-      global: {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      },
-    })
-
     const filesArray = Array.from(files)
     
     for (const file of filesArray) {
@@ -85,42 +73,39 @@ export default function CompleteJobCardModal({
       setImagePreviews((prev) => [...prev, newPreview])
 
       try {
-        // Generate unique filename
-        const fileExt = file.name.split('.').pop()
-        const fileName = `${jobCardId}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
-        
-        // Upload to Supabase Storage
-        const { error: uploadError } = await authenticatedSupabase.storage
-          .from('job-photos')
-          .upload(fileName, file, {
-            cacheControl: '3600',
-            upsert: false,
-          })
+        // Upload via API route (uses service role key to bypass RLS)
+        const formData = new FormData()
+        formData.append('file', file)
+        formData.append('jobCardId', jobCardId)
 
-        if (uploadError) {
-          console.error('Upload error:', uploadError)
-          notify.showError(`Failed to upload ${file.name}: ${uploadError.message}`, 'Error')
-          setImagePreviews((prev) => prev.filter((p) => p.url !== previewUrl))
-          URL.revokeObjectURL(previewUrl)
-          continue
+        const response = await fetch('/api/storage/upload', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        })
+
+        const data = await response.json()
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Upload failed')
         }
-
-        // Get public URL
-        const { data: urlData } = authenticatedSupabase.storage
-          .from('job-photos')
-          .getPublicUrl(fileName)
 
         // Update preview with public URL
         setImagePreviews((prev) =>
           prev.map((p) =>
             p.url === previewUrl
-              ? { url: urlData.publicUrl, file, uploading: false }
+              ? { url: data.publicUrl, file, uploading: false }
               : p
           )
         )
       } catch (error) {
         console.error('Error uploading image:', error)
-        notify.showError(`Failed to upload ${file.name}`, 'Error')
+        notify.showError(
+          `Failed to upload ${file.name}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          'Error'
+        )
         setImagePreviews((prev) => prev.filter((p) => p.url !== previewUrl))
         URL.revokeObjectURL(previewUrl)
       }
