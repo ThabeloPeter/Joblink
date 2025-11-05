@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import Image from 'next/image'
 import { X, Upload, XCircle, CheckCircle } from 'lucide-react'
 import { useNotify } from '@/components/ui/NotificationProvider'
 import { createClient } from '@supabase/supabase-js'
@@ -89,7 +90,7 @@ export default function CompleteJobCardModal({
         const fileName = `${jobCardId}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
         
         // Upload to Supabase Storage
-        const { data: uploadData, error: uploadError } = await authenticatedSupabase.storage
+        const { error: uploadError } = await authenticatedSupabase.storage
           .from('job-photos')
           .upload(fileName, file, {
             cacheControl: '3600',
@@ -171,7 +172,7 @@ export default function CompleteJobCardModal({
       })
       setImagePreviews([])
       onClose()
-    } catch (error) {
+    } catch {
       // Error handling is done in parent component
     }
   }
@@ -278,10 +279,13 @@ export default function CompleteJobCardModal({
                   {imagePreviews.map((preview, index) => (
                     <div key={index} className="relative group">
                       <div className="relative">
-                        <img
+                        <Image
                           src={preview.url}
                           alt={`Upload ${index + 1}`}
+                          width={128}
+                          height={128}
                           className="w-full h-32 object-cover rounded-lg border border-gray-300 dark:border-gray-700"
+                          unoptimized
                         />
                         {preview.uploading && (
                           <div className="absolute inset-0 bg-black/50 rounded-lg flex items-center justify-center">
