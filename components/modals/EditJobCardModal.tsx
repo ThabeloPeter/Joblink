@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Save, Calendar, MapPin, User as UserIcon, FileText, Building2 } from 'lucide-react'
+import { X, Save, FileText } from 'lucide-react'
 
 interface JobCard {
   id: string
@@ -38,12 +38,6 @@ interface EditJobCardModalProps {
     location: string
     dueDate: string
   }) => Promise<void>
-}
-
-const priorityColors = {
-  high: 'bg-red-500',
-  medium: 'bg-yellow-500',
-  low: 'bg-green-500',
 }
 
 const statusColors = {
@@ -141,7 +135,6 @@ export default function EditJobCardModal({
     }
   }
 
-  const currentProvider = providers.find(p => p.id === formData.providerId)
   const providerChanged = canEditProvider && jobCard.providerId && formData.providerId !== jobCard.providerId
 
   return (
