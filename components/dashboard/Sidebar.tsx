@@ -94,7 +94,15 @@ export default function Sidebar({ userRole, onToggle }: SidebarProps) {
   }
 
   return (
-    <div className="fixed left-0 top-0 h-full w-64 bg-gray-900 dark:bg-gray-950 border-r border-gray-800 dark:border-gray-900 flex flex-col z-40">
+    <>
+      {/* Mobile overlay */}
+      {onToggle && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-30 md:hidden"
+          onClick={onToggle}
+        />
+      )}
+      <div className="fixed left-0 top-0 h-full w-64 bg-gray-900 dark:bg-gray-950 border-r border-gray-800 dark:border-gray-900 flex flex-col z-40 shadow-xl md:shadow-none">
       {/* Logo */}
       <div className="h-16 flex items-center justify-between px-6 border-b border-gray-800 dark:border-gray-900">
         <h1 className="text-xl font-bold text-white uppercase tracking-wide">
@@ -149,6 +157,7 @@ export default function Sidebar({ userRole, onToggle }: SidebarProps) {
         </button>
       </div>
     </div>
+    </>
   )
 }
 

@@ -10,17 +10,22 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode
 }) {
-  const [sidebarVisible, setSidebarVisible] = useState(true)
+  const [sidebarVisible, setSidebarVisible] = useState(false) // Hidden by default on mobile
 
   return (
     <ProtectedRoute allowedRoles={['admin']} redirectTo="/auth">
       <div className="flex min-h-screen bg-gray-50 dark:bg-gray-950">
-        {sidebarVisible && <Sidebar userRole="admin" onToggle={() => setSidebarVisible(false)} />}
-        <div className={`flex-1 ${sidebarVisible ? 'ml-64' : ''} transition-all duration-300`}>
+        {/* Sidebar - hidden on mobile by default, always visible on desktop */}
+        <div className={`${sidebarVisible ? 'block' : 'hidden'} md:block`}>
+          <Sidebar userRole="admin" onToggle={() => setSidebarVisible(false)} />
+        </div>
+        
+        <div className="flex-1 md:ml-64 transition-all duration-300 w-full">
+          {/* Mobile menu button */}
           {!sidebarVisible && (
             <button
               onClick={() => setSidebarVisible(true)}
-              className="fixed top-4 left-4 z-50 p-2 bg-gray-900 dark:bg-gray-800 text-white rounded-lg shadow-lg hover:bg-gray-800 dark:hover:bg-gray-700 transition-colors"
+              className="fixed top-3 left-3 z-50 p-2 bg-gray-900 dark:bg-gray-800 text-white rounded-lg shadow-lg hover:bg-gray-800 dark:hover:bg-gray-700 transition-colors md:hidden"
               title="Show sidebar"
             >
               <Menu className="w-5 h-5" />

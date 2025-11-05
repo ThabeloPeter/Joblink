@@ -108,9 +108,9 @@ export default function CompanyDashboard() {
         } : undefined}
       />
       
-      <main className="p-6">
+      <main className="p-3 sm:p-4 md:p-6">
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8">
           <StatCard
             title="Service Providers"
             value={statsLoading ? '...' : (stats.totalProviders || 0)}
@@ -138,22 +138,22 @@ export default function CompanyDashboard() {
         </div>
 
         {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           {/* Active Job Cards */}
           <div className="lg:col-span-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700">
-            <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+            <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
               <div>
                 <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Active Job Cards</h2>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Monitor your ongoing jobs</p>
               </div>
               <button 
                 onClick={handleCreateJobCard}
-                className="px-4 py-2 bg-gray-900 dark:bg-gray-700 text-white border border-gray-900 dark:border-gray-700 hover:bg-gray-800 dark:hover:bg-gray-600 transition-colors text-sm font-medium uppercase tracking-wide"
+                className="w-full sm:w-auto px-4 py-2 bg-gray-900 dark:bg-gray-700 text-white border border-gray-900 dark:border-gray-700 hover:bg-gray-800 dark:hover:bg-gray-600 transition-colors text-sm font-medium uppercase tracking-wide"
               >
                 + New Job Card
               </button>
             </div>
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
               {loadingJobCards ? (
                 <div className="text-center py-8 text-gray-500">Loading...</div>
               ) : activeJobCards.length === 0 ? (

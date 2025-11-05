@@ -52,17 +52,17 @@ export default function Header({ title, user }: HeaderProps) {
 
   return (
     <>
-      <header className="h-16 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between px-6 sticky top-0 z-30">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{title}</h1>
+      <header className="h-14 sm:h-16 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between px-3 sm:px-4 md:px-6 sticky top-0 z-30">
+        <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100 truncate">{title}</h1>
         
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
           {/* Search */}
-          <div className="relative hidden md:block">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
+          <div className="relative hidden lg:block">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400 dark:text-gray-500" />
             <input
               type="text"
               placeholder="Search..."
-              className="pl-10 pr-4 py-2 w-64 border border-gray-300 dark:border-gray-700 focus:border-gray-900 dark:focus:border-gray-400 outline-none text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400"
+              className="pl-9 sm:pl-10 pr-3 sm:pr-4 py-1.5 sm:py-2 w-48 sm:w-56 md:w-64 border border-gray-300 dark:border-gray-700 focus:border-gray-900 dark:focus:border-gray-400 outline-none text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400"
             />
           </div>
 
@@ -72,24 +72,24 @@ export default function Header({ title, user }: HeaderProps) {
           {/* Notifications */}
           <button
             onClick={() => setShowNotificationCenter(true)}
-            className="relative p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 border border-transparent hover:border-gray-300 dark:hover:border-gray-700 transition-colors"
+            className="relative p-1.5 sm:p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 border border-transparent hover:border-gray-300 dark:hover:border-gray-700 transition-colors"
           >
-            <Bell className="w-5 h-5" />
+            <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
             {unreadCount > 0 && (
-              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+              <span className="absolute top-0.5 right-0.5 sm:top-1 sm:right-1 w-1.5 h-1.5 sm:w-2 sm:h-2 bg-red-500 rounded-full"></span>
             )}
           </button>
 
         {/* User Menu */}
-        <div className="flex items-center gap-3 pl-4 border-l border-gray-200 dark:border-gray-800">
-          <div className="w-8 h-8 bg-gray-900 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 flex items-center justify-center text-white font-semibold text-sm">
+        <div className="flex items-center gap-2 sm:gap-3 pl-2 sm:pl-4 border-l border-gray-200 dark:border-gray-800">
+          <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gray-900 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 flex items-center justify-center text-white font-semibold text-xs sm:text-sm">
             {user?.name?.charAt(0).toUpperCase() || 'U'}
           </div>
-          <div className="hidden md:block">
+          <div className="hidden lg:block">
             <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{user?.name || 'User'}</p>
             <p className="text-xs text-gray-500 dark:text-gray-400">{user?.role || 'Role'}</p>
           </div>
-          <ChevronDown className="w-4 h-4 text-gray-400 dark:text-gray-500 hidden md:block" />
+          <ChevronDown className="w-4 h-4 text-gray-400 dark:text-gray-500 hidden lg:block" />
         </div>
       </div>
     </header>

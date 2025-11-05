@@ -179,7 +179,7 @@ export default function ServiceProvidersPage() {
         } : undefined}
       />
       
-      <main className="p-6">
+      <main className="p-3 sm:p-4 md:p-6">
         {/* Header Actions */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <div>
@@ -200,12 +200,12 @@ export default function ServiceProvidersPage() {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-          <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 p-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 md:gap-6 mb-4 sm:mb-6">
+          <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Providers</p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-2">{loading ? '...' : providers.length}</p>
+                <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100 mt-2">{loading ? '...' : providers.length}</p>
               </div>
               <div className="p-3 bg-blue-100 dark:bg-blue-900/30">
                 <UserCheck className="w-6 h-6 text-blue-600 dark:text-blue-400" />
@@ -213,11 +213,11 @@ export default function ServiceProvidersPage() {
             </div>
           </div>
           
-          <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 p-6">
+          <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Active Providers</p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-2">
+                <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100 mt-2">
                   {loading ? '...' : providers.filter((p) => p.status === 'active').length}
                 </p>
               </div>
@@ -227,11 +227,11 @@ export default function ServiceProvidersPage() {
             </div>
           </div>
           
-          <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 p-6">
+          <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Average Rating</p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-2">4.8</p>
+                <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100 mt-2">4.8</p>
               </div>
               <div className="p-3 bg-yellow-100 dark:bg-yellow-900/30">
                 <span className="text-yellow-600 dark:text-yellow-400 text-xl">★</span>
@@ -268,35 +268,37 @@ export default function ServiceProvidersPage() {
               <p className="text-gray-600 dark:text-gray-400">Loading providers...</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
-                  <tr>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                      Provider
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                      Contact
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                      Login Code
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                      Jobs Completed
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                      Rating
-                    </th>
-                    <th className="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                  {filteredProviders.map((provider) => (
+            <>
+              {/* Desktop Table View */}
+              <div className="hidden lg:block overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
+                    <tr>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                        Provider
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                        Contact
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                        Login Code
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                        Status
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                        Jobs Completed
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                        Rating
+                      </th>
+                      <th className="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                    {filteredProviders.map((provider) => (
                   <tr key={provider.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-3">
@@ -387,6 +389,99 @@ export default function ServiceProvidersPage() {
               </tbody>
             </table>
             </div>
+            
+            {/* Mobile Card View */}
+            <div className="lg:hidden divide-y divide-gray-200 dark:divide-gray-700">
+              {filteredProviders.map((provider) => (
+                <div key={provider.id} className="p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center flex-shrink-0">
+                        <span className="text-blue-600 dark:text-blue-400 font-semibold text-sm">
+                          {provider.name.charAt(0)}
+                        </span>
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="font-semibold text-gray-900 dark:text-gray-100 truncate">{provider.name}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{provider.email}</p>
+                      </div>
+                    </div>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium flex-shrink-0 ml-2 ${
+                      provider.status === 'active'
+                        ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                        : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+                    }`}>
+                      {provider.status}
+                    </span>
+                  </div>
+                  
+                  <div className="space-y-2 mb-3">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-600 dark:text-gray-400">Phone:</span>
+                      <span className="text-gray-900 dark:text-gray-100 font-medium">{provider.phone}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-600 dark:text-gray-400">Login Code:</span>
+                      <div className="flex items-center gap-2">
+                        <code className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 font-mono text-xs font-semibold border border-gray-300 dark:border-gray-600 rounded">
+                          {provider.code || 'N/A'}
+                        </code>
+                        {provider.code && (
+                          <button
+                            onClick={() => {
+                              navigator.clipboard.writeText(provider.code || '')
+                              notify.showSuccess('Login code copied to clipboard', 'Copied')
+                            }}
+                            className="p-1 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+                            title="Copy code"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-600 dark:text-gray-400">Jobs Completed:</span>
+                      <span className="text-gray-900 dark:text-gray-100 font-medium">{provider.jobCardsCompleted}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-600 dark:text-gray-400">Rating:</span>
+                      <div className="flex items-center gap-1">
+                        <span className="text-yellow-500">★</span>
+                        <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{provider.rating || 0}</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-end gap-2 pt-3 border-t border-gray-200 dark:border-gray-700">
+                    <button
+                      onClick={() => toggleProviderStatus(provider.id)}
+                      className={`p-2 rounded-lg transition-colors ${
+                        provider.status === 'active'
+                          ? 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+                          : 'text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20'
+                      }`}
+                      title={provider.status === 'active' ? 'Deactivate' : 'Activate'}
+                    >
+                      {provider.status === 'active' ? (
+                        <PowerOff className="w-4 h-4" />
+                      ) : (
+                        <Power className="w-4 h-4" />
+                      )}
+                    </button>
+                    <button className="p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                      <Edit className="w-4 h-4" />
+                    </button>
+                    <button className="p-2 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            </>
           )}
           
           {!loading && filteredProviders.length === 0 && (

@@ -329,7 +329,7 @@ export default function JobCardsPage() {
         } : undefined}
       />
       
-      <main className="p-6">
+      <main className="p-3 sm:p-4 md:p-6">
         {/* Header Actions */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <div>
@@ -350,34 +350,34 @@ export default function JobCardsPage() {
         </div>
 
         {/* Stats Overview */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6">
-          <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 p-4">
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total</p>
-            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{loading ? '...' : jobCards.length}</p>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-4 sm:mb-6">
+          <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 p-3 sm:p-4">
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-1">Total</p>
+            <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">{loading ? '...' : jobCards.length}</p>
           </div>
-          <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 p-4">
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">In Progress</p>
-            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+          <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 p-3 sm:p-4">
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-1">In Progress</p>
+            <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
               {loading ? '...' : jobCards.filter((j) => j.status === 'in_progress').length}
             </p>
           </div>
-          <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 p-4">
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Pending</p>
-            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+          <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 p-3 sm:p-4">
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-1">Pending</p>
+            <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
               {loading ? '...' : jobCards.filter((j) => j.status === 'pending').length}
             </p>
           </div>
-          <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 p-4">
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Completed</p>
-            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+          <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 p-3 sm:p-4">
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-1">Completed</p>
+            <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
               {loading ? '...' : jobCards.filter((j) => j.status === 'completed').length}
             </p>
           </div>
         </div>
 
         {/* Filters */}
-        <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 p-4 mb-6">
-          <div className="flex flex-col md:flex-row gap-4">
+        <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 p-3 sm:p-4 mb-4 sm:mb-6">
+          <div className="flex flex-col md:flex-row gap-3 sm:gap-4">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
               <input
@@ -447,7 +447,7 @@ export default function JobCardsPage() {
         </div>
 
         {/* Job Cards Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
           {loading ? (
             <div className="col-span-full text-center py-12">
               <p className="text-gray-600 dark:text-gray-400">Loading job cards...</p>
@@ -461,7 +461,7 @@ export default function JobCardsPage() {
             paginatedJobCards.map((job) => (
             <div
               key={job.id}
-              className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 p-6 hover:border-gray-400 dark:hover:border-gray-600 transition-colors"
+              className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 p-4 sm:p-6 hover:border-gray-400 dark:hover:border-gray-600 transition-colors"
             >
               {/* Header */}
               <div className="flex items-start justify-between mb-4">
