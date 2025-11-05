@@ -5,6 +5,7 @@ import { Bell, Search, ChevronDown } from 'lucide-react'
 import ThemeToggle from './ThemeToggle'
 import NotificationCenter from '@/components/modals/NotificationCenter'
 import { getAuthToken } from '@/lib/auth'
+import { useRealtimeUpdates } from '@/lib/hooks/useRealtimeUpdates'
 
 interface HeaderProps {
   title: string
@@ -18,15 +19,6 @@ interface HeaderProps {
 export default function Header({ title, user }: HeaderProps) {
   const [showNotificationCenter, setShowNotificationCenter] = useState(false)
   const [unreadCount, setUnreadCount] = useState(0)
-
-  useEffect(() => {
-    if (!showNotificationCenter) {
-      // Fetch unread count periodically
-      fetchUnreadCount()
-      const interval = setInterval(fetchUnreadCount, 30000) // Every 30 seconds
-      return () => clearInterval(interval)
-    }
-  }, [showNotificationCenter])
 
   const fetchUnreadCount = async () => {
     try {
@@ -47,6 +39,14 @@ export default function Header({ title, user }: HeaderProps) {
       console.error('Error fetching unread count:', error)
     }
   }
+
+  // Real-time updates for notification count
+  useRealtimeUpdates({
+    enabled: !showNotificationCenter,
+    interval: 30000, // 30 seconds
+    onUpdate: fetchUnreadCount,
+    onError: (error) => console.error('Error in real-time update:', error),
+  })
 
   const userRole = (user?.role === 'admin' ? 'admin' : user?.role === 'company' ? 'company' : 'provider') as 'admin' | 'company' | 'provider'
 

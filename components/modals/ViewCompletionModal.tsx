@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { X, CheckCircle, Image as ImageIcon, FileText, Clock } from 'lucide-react'
 import { useNotify } from '@/components/ui/NotificationProvider'
 import { getAuthToken } from '@/lib/auth'
+import { formatDate } from '@/lib/utils/date'
 
 interface CompletionData {
   notes: string | null
@@ -143,7 +144,7 @@ export default function ViewCompletionModal({
                     </p>
                     <p className="text-sm font-medium text-gray-900 dark:text-gray-100 flex items-center gap-1">
                       <Clock className="w-4 h-4" />
-                      {completedAt || 'N/A'}
+                      {completedAt ? formatDate(completedAt, 'datetime') : 'N/A'}
                     </p>
                   </div>
                   {auditedAt && (
@@ -153,7 +154,7 @@ export default function ViewCompletionModal({
                       </p>
                       <p className="text-sm font-medium text-green-600 dark:text-green-400 flex items-center gap-1">
                         <CheckCircle className="w-4 h-4" />
-                        {auditedAt}
+                        {formatDate(auditedAt, 'datetime')}
                       </p>
                     </div>
                   )}

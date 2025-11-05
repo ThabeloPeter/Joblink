@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
 import { X, Calendar, MapPin, User as UserIcon, Building2, FileText, CheckCircle, Image as ImageIcon } from 'lucide-react'
+import { formatDate } from '@/lib/utils/date'
 
 interface JobCard {
   id: string
@@ -258,7 +259,7 @@ export default function ViewJobCardModal({
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-gray-600 dark:text-gray-400">Created:</span>
                         <span className="text-gray-900 dark:text-gray-100 font-medium">
-                          {jobCard.createdAt}
+                          {formatDate(jobCard.createdAt, 'datetime')}
                         </span>
                       </div>
                     )}
@@ -266,7 +267,7 @@ export default function ViewJobCardModal({
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-gray-600 dark:text-gray-400">Completed:</span>
                         <span className="text-gray-900 dark:text-gray-100 font-medium">
-                          {jobCard.completedAt}
+                          {formatDate(jobCard.completedAt, 'datetime')}
                         </span>
                       </div>
                     )}
@@ -277,7 +278,7 @@ export default function ViewJobCardModal({
                           Audited:
                         </span>
                         <span className="text-gray-900 dark:text-gray-100 font-medium">
-                          {jobCard.auditedAt}
+                          {formatDate(jobCard.auditedAt, 'datetime')}
                         </span>
                       </div>
                     )}

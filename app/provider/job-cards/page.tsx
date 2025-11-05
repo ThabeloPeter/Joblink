@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import Header from '@/components/dashboard/Header'
-import { ClipboardList, Search, Calendar, Building2, CheckCircle, XCircle, PlayCircle } from 'lucide-react'
+import { ClipboardList, Search, Calendar, Building2, CheckCircle, XCircle, PlayCircle, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useNotify } from '@/components/ui/NotificationProvider'
 import { getAuthToken } from '@/lib/auth'
 import { getCurrentUser } from '@/lib/auth'
@@ -10,6 +10,7 @@ import { User } from '@/lib/types/user'
 import ViewJobCardModal from '@/components/modals/ViewJobCardModal'
 import ConfirmActionModal from '@/components/modals/ConfirmActionModal'
 import CompleteJobCardModal from '@/components/modals/CompleteJobCardModal'
+import { formatDate } from '@/lib/utils/date'
 
 interface JobCard {
   id: string
@@ -36,6 +37,8 @@ export default function ProviderJobCardsPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [selectedJobCard, setSelectedJobCard] = useState<JobCard | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [itemsPerPage, setItemsPerPage] = useState(10)
   const [showViewModal, setShowViewModal] = useState(false)
   const [showConfirmModal, setShowConfirmModal] = useState(false)
   const [pendingAction, setPendingAction] = useState<{ jobCardId: string; status: 'accepted' | 'declined' } | null>(null)
@@ -86,6 +89,17 @@ export default function ProviderJobCardsPage() {
     const matchesStatus = statusFilter === 'all' || job.status === statusFilter
     return matchesSearch && matchesStatus
   })
+
+  // Pagination
+  const totalPages = Math.ceil(filteredJobCards.length / itemsPerPage)
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const endIndex = startIndex + itemsPerPage
+  const paginatedJobCards = filteredJobCards.slice(startIndex, endIndex)
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchQuery, statusFilter])
 
   const statusColors = {
     pending: 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300',
@@ -382,7 +396,7 @@ export default function ProviderJobCardsPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                  {filteredJobCards.map((job) => (
+                  {paginatedJobCards.map((job) => (
                     <tr key={job.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                       <td className="px-6 py-4">
                         <div>
@@ -406,7 +420,7 @@ export default function ProviderJobCardsPage() {
                         {job.dueDate ? (
                           <div className="flex items-center gap-2 text-sm text-gray-900 dark:text-gray-100">
                             <Calendar className="w-4 h-4 text-gray-400" />
-                            {new Date(job.dueDate).toLocaleDateString()}
+                            {formatDate(job.dueDate, 'short')}
                           </div>
                         ) : (
                           <span className="text-sm text-gray-400">No due date</span>
@@ -482,6 +496,79 @@ export default function ProviderJobCardsPage() {
             <div className="text-center py-12">
               <ClipboardList className="w-12 h-12 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
               <p className="text-gray-600 dark:text-gray-400">No job cards found</p>
+            </div>
+          )}
+
+          {/* Pagination */}
+          {!loading && filteredJobCards.length > 0 && totalPages > 1 && (
+            <div className="flex items-center justify-between mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+              <div className="flex items-center gap-4">
+                <span className="text-sm text-gray-600 dark:text-gray-400">
+                  Showing {startIndex + 1} to {Math.min(endIndex, filteredJobCards.length)} of {filteredJobCards.length} job cards
+                </span>
+                <select
+                  value={itemsPerPage}
+                  onChange={(e) => {
+                    setItemsPerPage(Number(e.target.value))
+                    setCurrentPage(1)
+                  }}
+                  className="px-3 py-1.5 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-gray-500 focus:border-transparent outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-sm"
+                >
+                  <option value="10">10 per page</option>
+                  <option value="25">25 per page</option>
+                  <option value="50">50 per page</option>
+                  <option value="100">100 per page</option>
+                </select>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1}
+                  className="p-2 border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1)
+                    .filter((page) => {
+                      // Show first page, last page, current page, and pages around current
+                      return (
+                        page === 1 ||
+                        page === totalPages ||
+                        (page >= currentPage - 1 && page <= currentPage + 1)
+                      )
+                    })
+                    .map((page, index, array) => {
+                      // Add ellipsis if needed
+                      const prevPage = array[index - 1]
+                      const showEllipsis = prevPage && page - prevPage > 1
+                      return (
+                        <React.Fragment key={page}>
+                          {showEllipsis && (
+                            <span className="px-2 text-gray-400">...</span>
+                          )}
+                          <button
+                            onClick={() => setCurrentPage(page)}
+                            className={`px-3 py-1.5 text-sm font-medium border transition-colors ${
+                              currentPage === page
+                                ? 'bg-gray-900 dark:bg-gray-700 text-white border-gray-900 dark:border-gray-700'
+                                : 'border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
+                            }`}
+                          >
+                            {page}
+                          </button>
+                        </React.Fragment>
+                      )
+                    })}
+                </div>
+                <button
+                  onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                  disabled={currentPage === totalPages}
+                  className="p-2 border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           )}
         </div>

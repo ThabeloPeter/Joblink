@@ -1,15 +1,17 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import Header from '@/components/dashboard/Header'
-import { ClipboardList, Plus, Search, Calendar, MapPin, User as UserIcon } from 'lucide-react'
+import { ClipboardList, Plus, Search, Calendar, MapPin, User as UserIcon, ChevronLeft, ChevronRight } from 'lucide-react'
 import CreateJobCardModal from '@/components/modals/CreateJobCardModal'
 import EditJobCardModal from '@/components/modals/EditJobCardModal'
 import ViewCompletionModal from '@/components/modals/ViewCompletionModal'
+import Pagination from '@/components/ui/Pagination'
 import { useNotify } from '@/components/ui/NotificationProvider'
 import { getAuthToken } from '@/lib/auth'
 import { getCurrentUser } from '@/lib/auth'
 import { User } from '@/lib/types/user'
+import { formatDate } from '@/lib/utils/date'
 
 interface JobCard {
   id: string
@@ -43,10 +45,15 @@ export default function JobCardsPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [priorityFilter, setPriorityFilter] = useState<string>('all')
+  const [dateRangeFilter, setDateRangeFilter] = useState<'all' | 'today' | 'week' | 'month' | 'custom'>('all')
+  const [customDateStart, setCustomDateStart] = useState('')
+  const [customDateEnd, setCustomDateEnd] = useState('')
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
   const [showCompletionModal, setShowCompletionModal] = useState(false)
   const [selectedJobCard, setSelectedJobCard] = useState<JobCard | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [itemsPerPage, setItemsPerPage] = useState(10)
 
   useEffect(() => {
     async function loadUser() {
@@ -107,8 +114,48 @@ export default function JobCardsPage() {
       job.provider.toLowerCase().includes(searchQuery.toLowerCase())
     const matchesStatus = statusFilter === 'all' || job.status === statusFilter
     const matchesPriority = priorityFilter === 'all' || job.priority === priorityFilter
-    return matchesSearch && matchesStatus && matchesPriority
+    
+    // Date range filtering
+    let matchesDate = true
+    if (dateRangeFilter !== 'all') {
+      const jobDate = new Date(job.createdAt)
+      const now = new Date()
+      
+      if (dateRangeFilter === 'today') {
+        matchesDate = jobDate.toDateString() === now.toDateString()
+      } else if (dateRangeFilter === 'week') {
+        const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+        matchesDate = jobDate >= weekAgo
+      } else if (dateRangeFilter === 'month') {
+        const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
+        matchesDate = jobDate >= monthAgo
+      } else if (dateRangeFilter === 'custom') {
+        if (customDateStart) {
+          const startDate = new Date(customDateStart)
+          startDate.setHours(0, 0, 0, 0)
+          if (jobDate < startDate) matchesDate = false
+        }
+        if (customDateEnd) {
+          const endDate = new Date(customDateEnd)
+          endDate.setHours(23, 59, 59, 999)
+          if (jobDate > endDate) matchesDate = false
+        }
+      }
+    }
+    
+    return matchesSearch && matchesStatus && matchesPriority && matchesDate
   })
+
+  // Pagination
+  const totalPages = Math.ceil(filteredJobCards.length / itemsPerPage)
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const endIndex = startIndex + itemsPerPage
+  const paginatedJobCards = filteredJobCards.slice(startIndex, endIndex)
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchQuery, statusFilter, priorityFilter, dateRangeFilter, customDateStart, customDateEnd])
 
   const statusColors = {
     pending: 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300',
@@ -363,7 +410,40 @@ export default function JobCardsPage() {
               <option value="medium">Medium</option>
               <option value="low">Low</option>
             </select>
+            <select
+              value={dateRangeFilter}
+              onChange={(e) => setDateRangeFilter(e.target.value as typeof dateRangeFilter)}
+              className="px-4 py-2 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-gray-500 focus:border-transparent outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+            >
+              <option value="all">All Dates</option>
+              <option value="today">Today</option>
+              <option value="week">Last 7 Days</option>
+              <option value="month">Last 30 Days</option>
+              <option value="custom">Custom Range</option>
+            </select>
           </div>
+          {dateRangeFilter === 'custom' && (
+            <div className="flex gap-4 mt-4">
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Start Date</label>
+                <input
+                  type="date"
+                  value={customDateStart}
+                  onChange={(e) => setCustomDateStart(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-gray-500 focus:border-transparent outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                />
+              </div>
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">End Date</label>
+                <input
+                  type="date"
+                  value={customDateEnd}
+                  onChange={(e) => setCustomDateEnd(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-gray-500 focus:border-transparent outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                />
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Job Cards Grid */}
@@ -378,7 +458,7 @@ export default function JobCardsPage() {
               <p className="text-gray-600 dark:text-gray-400">No job cards found</p>
             </div>
           ) : (
-            filteredJobCards.map((job) => (
+            paginatedJobCards.map((job) => (
             <div
               key={job.id}
               className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 p-6 hover:border-gray-400 dark:hover:border-gray-600 transition-colors"
@@ -406,7 +486,7 @@ export default function JobCardsPage() {
                 </div>
                 <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                   <Calendar className="w-4 h-4" />
-                  <span>Due: {job.dueDate}</span>
+                  <span>Due: {formatDate(job.dueDate, 'short')}</span>
                 </div>
               </div>
 
@@ -437,6 +517,18 @@ export default function JobCardsPage() {
             ))
           )}
         </div>
+
+        {/* Pagination */}
+        {!loading && filteredJobCards.length > 0 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            itemsPerPage={itemsPerPage}
+            totalItems={filteredJobCards.length}
+            onPageChange={setCurrentPage}
+            onItemsPerPageChange={setItemsPerPage}
+          />
+        )}
       </main>
 
       {/* Create Job Card Modal */}
