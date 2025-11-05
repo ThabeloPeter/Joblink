@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation'
 import Header from '@/components/dashboard/Header'
 import StatCard from '@/components/dashboard/StatCard'
 import { 
-  ClipboardList, 
   CheckCircle, 
   Clock,
   TrendingUp,
@@ -51,7 +50,7 @@ export default function ProviderDashboard() {
 
         if (response.ok) {
           const data = await response.json()
-          setStats(data.stats || stats)
+          setStats((prevStats) => data.stats || prevStats)
         }
       } catch (error) {
         console.error('Error fetching provider stats:', error)

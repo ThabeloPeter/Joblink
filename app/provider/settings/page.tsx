@@ -2,12 +2,10 @@
 
 import { useEffect, useState } from 'react'
 import Header from '@/components/dashboard/Header'
-import { getCurrentUser, getAuthToken } from '@/lib/auth'
+import { getCurrentUser } from '@/lib/auth'
 import { User } from '@/lib/types/user'
-import { useNotify } from '@/components/ui/NotificationProvider'
 
 export default function ProviderSettingsPage() {
-  const notify = useNotify()
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
 

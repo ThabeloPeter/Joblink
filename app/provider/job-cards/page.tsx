@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Header from '@/components/dashboard/Header'
-import { ClipboardList, Search, Calendar, MapPin, Building2, CheckCircle, XCircle, PlayCircle, Clock } from 'lucide-react'
+import { ClipboardList, Search, Calendar, Building2, CheckCircle, XCircle, PlayCircle } from 'lucide-react'
 import { useNotify } from '@/components/ui/NotificationProvider'
 import { getAuthToken } from '@/lib/auth'
 import { getCurrentUser } from '@/lib/auth'
