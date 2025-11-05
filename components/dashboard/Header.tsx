@@ -26,7 +26,6 @@ export default function Header({ title, user }: HeaderProps) {
       const interval = setInterval(fetchUnreadCount, 30000) // Every 30 seconds
       return () => clearInterval(interval)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showNotificationCenter])
 
   const fetchUnreadCount = async () => {

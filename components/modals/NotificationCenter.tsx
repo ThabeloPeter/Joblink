@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Bell, CheckCircle, XCircle, FileText, Building2, User as UserIcon, Clock, AlertCircle } from 'lucide-react'
+import { X, Bell, CheckCircle, FileText, Building2, User as UserIcon, Clock, AlertCircle } from 'lucide-react'
 import { getAuthToken } from '@/lib/auth'
 
 interface Notification {
