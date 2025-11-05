@@ -1,4 +1,4 @@
-import { Toaster } from 'react-hot-toast'
+import ToastProvider from '@/components/ui/Toaster'
 
 export default function AuthLayout({
   children,
@@ -8,8 +8,7 @@ export default function AuthLayout({
   return (
     <>
       {children}
-      <Toaster position="top-right" />
+      <ToastProvider />
     </>
   )
 }
-

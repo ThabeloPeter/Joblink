@@ -21,3 +21,54 @@ body {
   color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
 }
+
+/* Toast Notification Styles - Match Dashboard Design */
+[data-sonner-toast],
+[data-sonner-toaster] {
+  --toast-bg: #ffffff;
+  --toast-border: #d1d5db;
+  --toast-text: #111827;
+}
+
+.dark [data-sonner-toast],
+.dark [data-sonner-toaster] {
+  --toast-bg: #1f2937;
+  --toast-border: #374151;
+  --toast-text: #f9fafb;
+}
+
+/* React Hot Toast Custom Styles - Match Dashboard Design */
+/* Target react-hot-toast container and toasts */
+#react-hot-toast,
+#react-hot-toast > div,
+.dashboard-toast,
+div[role="status"] {
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif !important;
+}
+
+/* Individual toast styling */
+.dashboard-toast {
+  background: #ffffff !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  color: #111827 !important;
+  font-weight: 500 !important;
+}
+
+.dark .dashboard-toast {
+  background: #1f2937 !important;
+  border: 1px solid #374151 !important;
+  color: #f9fafb !important;
+}
+
+/* Error toast - red border */
+.dashboard-toast[data-type="error"],
+div[role="status"]:has(svg[fill="#dc2626"]) {
+  border-color: #dc2626 !important;
+}
+
+.dark .dashboard-toast[data-type="error"],
+.dark div[role="status"]:has(svg[fill="#dc2626"]) {
+  border-color: #ef4444 !important;
+}
