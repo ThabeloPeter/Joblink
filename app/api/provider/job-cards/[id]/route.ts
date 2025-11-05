@@ -90,7 +90,7 @@ export async function PUT(
     // Set completed_at if status is completed
     if (validatedData.status === 'completed') {
       updateData.completed_at = new Date().toISOString()
-    } else if (validatedData.status !== 'completed' && jobCard.status === 'completed') {
+    } else if (jobCard.status === 'completed') {
       // If changing from completed to another status, clear completed_at
       updateData.completed_at = null
     }
