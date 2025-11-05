@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { createActivityLog } from '@/lib/activity-log'
 
 export async function GET(request: NextRequest) {
   try {
@@ -313,6 +314,29 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       )
     }
+
+    // Create activity log entry
+    const { data: companyData } = await supabase
+      .from('companies')
+      .select('name')
+      .eq('id', profile.company_id)
+      .single()
+
+    await createActivityLog({
+      type: 'provider',
+      title: `New service provider added: "${name}"`,
+      message: `A new service provider "${name}" was added to ${companyData?.name || 'the company'}`,
+      entityType: 'provider',
+      entityId: providerData.id,
+      actorType: 'company',
+      actorId: authUser.id,
+      actorName: companyData?.name || 'Company',
+      companyId: profile.company_id,
+      metadata: {
+        providerName: name,
+        providerEmail: email,
+      },
+    })
 
     return NextResponse.json({
       success: true,

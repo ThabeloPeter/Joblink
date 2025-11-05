@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { createActivityLog } from '@/lib/activity-log'
 
 export async function POST(
   request: NextRequest,
@@ -64,6 +65,29 @@ export async function POST(
         { status: 404 }
       )
     }
+
+    // Create activity log entry
+    const { data: adminData } = await supabase
+      .from('users')
+      .select('email')
+      .eq('id', authUser.id)
+      .single()
+
+    await createActivityLog({
+      type: 'approval',
+      title: `Company "${company.name}" approved`,
+      message: `Company "${company.name}" has been approved by admin`,
+      entityType: 'company',
+      entityId: id,
+      actorType: 'admin',
+      actorId: authUser.id,
+      actorName: adminData?.email || 'Admin',
+      companyId: id,
+      metadata: {
+        companyName: company.name,
+        companyEmail: company.email,
+      },
+    })
 
     return NextResponse.json({
       success: true,

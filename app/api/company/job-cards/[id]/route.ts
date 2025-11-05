@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { z } from 'zod'
+import { createActivityLog } from '@/lib/activity-log'
 
 const updateJobCardSchema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters'),
@@ -179,6 +180,46 @@ export async function PUT(
         { status: 500 }
       )
     }
+
+    // Create activity log entry
+    const { data: companyData } = await supabase
+      .from('companies')
+      .select('name')
+      .eq('id', profile.company_id)
+      .single()
+
+    const { data: oldProviderData } = await supabase
+      .from('service_providers')
+      .select('name')
+      .eq('id', currentJobCard.provider_id)
+      .single()
+
+    const { data: newProviderData } = await supabase
+      .from('service_providers')
+      .select('name')
+      .eq('id', validatedData.providerId)
+      .single()
+
+    await createActivityLog({
+      type: 'job_card',
+      title: shouldRecall 
+        ? `Job card "${validatedData.title}" recalled and reassigned`
+        : `Job card "${validatedData.title}" updated`,
+      message: shouldRecall
+        ? `Job card was recalled from ${oldProviderData?.name || 'provider'} and reassigned to ${newProviderData?.name || 'new provider'}`
+        : `Job card details were updated by ${companyData?.name || 'company'}`,
+      entityType: 'job_card',
+      entityId: id,
+      actorType: 'company',
+      actorId: authUser.id,
+      actorName: companyData?.name || 'Company',
+      companyId: profile.company_id,
+      metadata: {
+        previousVersion,
+        providerChanged,
+        recalled: shouldRecall,
+      },
+    })
 
     return NextResponse.json({
       success: true,

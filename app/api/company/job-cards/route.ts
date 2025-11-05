@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { z } from 'zod'
+import { createActivityLog } from '@/lib/activity-log'
 
 const jobCardSchema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters'),
@@ -221,6 +222,36 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       )
     }
+
+    // Create activity log entry
+    const { data: companyData } = await supabase
+      .from('companies')
+      .select('name')
+      .eq('id', profile.company_id)
+      .single()
+
+    const { data: providerData } = await supabase
+      .from('service_providers')
+      .select('name')
+      .eq('id', validatedData.providerId)
+      .single()
+
+    await createActivityLog({
+      type: 'job_card',
+      title: `New job card created: "${validatedData.title}"`,
+      message: `A new job card was created and assigned to ${providerData?.name || 'provider'}`,
+      entityType: 'job_card',
+      entityId: jobCard.id,
+      actorType: 'company',
+      actorId: authUser.id,
+      actorName: companyData?.name || 'Company',
+      companyId: profile.company_id,
+      metadata: {
+        priority: validatedData.priority,
+        location: validatedData.location,
+        dueDate: validatedData.dueDate,
+      },
+    })
 
     return NextResponse.json({
       success: true,

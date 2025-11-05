@@ -1,7 +1,10 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { Bell, Search, ChevronDown } from 'lucide-react'
 import ThemeToggle from './ThemeToggle'
+import NotificationCenter from '@/components/modals/NotificationCenter'
+import { getAuthToken } from '@/lib/auth'
 
 interface HeaderProps {
   title: string
@@ -13,29 +16,70 @@ interface HeaderProps {
 }
 
 export default function Header({ title, user }: HeaderProps) {
+  const [showNotificationCenter, setShowNotificationCenter] = useState(false)
+  const [unreadCount, setUnreadCount] = useState(0)
+
+  useEffect(() => {
+    if (!showNotificationCenter) {
+      // Fetch unread count periodically
+      fetchUnreadCount()
+      const interval = setInterval(fetchUnreadCount, 30000) // Every 30 seconds
+      return () => clearInterval(interval)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showNotificationCenter])
+
+  const fetchUnreadCount = async () => {
+    try {
+      const token = getAuthToken()
+      if (!token) return
+
+      const response = await fetch('/api/notifications', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setUnreadCount(data.unreadCount || 0)
+      }
+    } catch (error) {
+      console.error('Error fetching unread count:', error)
+    }
+  }
+
+  const userRole = (user?.role === 'admin' ? 'admin' : user?.role === 'company' ? 'company' : 'provider') as 'admin' | 'company' | 'provider'
+
   return (
-    <header className="h-16 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between px-6 sticky top-0 z-30">
-      <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{title}</h1>
-      
-      <div className="flex items-center gap-4">
-        {/* Search */}
-        <div className="relative hidden md:block">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
-          <input
-            type="text"
-            placeholder="Search..."
-            className="pl-10 pr-4 py-2 w-64 border border-gray-300 dark:border-gray-700 focus:border-gray-900 dark:focus:border-gray-400 outline-none text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400"
-          />
-        </div>
+    <>
+      <header className="h-16 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between px-6 sticky top-0 z-30">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{title}</h1>
+        
+        <div className="flex items-center gap-4">
+          {/* Search */}
+          <div className="relative hidden md:block">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
+            <input
+              type="text"
+              placeholder="Search..."
+              className="pl-10 pr-4 py-2 w-64 border border-gray-300 dark:border-gray-700 focus:border-gray-900 dark:focus:border-gray-400 outline-none text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400"
+            />
+          </div>
 
-        {/* Theme Toggle */}
-        <ThemeToggle />
+          {/* Theme Toggle */}
+          <ThemeToggle />
 
-        {/* Notifications */}
-        <button className="relative p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 border border-transparent hover:border-gray-300 dark:hover:border-gray-700 transition-colors">
-          <Bell className="w-5 h-5" />
-          <span className="absolute top-1 right-1 w-2 h-2 bg-red-500"></span>
-        </button>
+          {/* Notifications */}
+          <button
+            onClick={() => setShowNotificationCenter(true)}
+            className="relative p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 border border-transparent hover:border-gray-300 dark:hover:border-gray-700 transition-colors"
+          >
+            <Bell className="w-5 h-5" />
+            {unreadCount > 0 && (
+              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+            )}
+          </button>
 
         {/* User Menu */}
         <div className="flex items-center gap-3 pl-4 border-l border-gray-200 dark:border-gray-800">
@@ -50,6 +94,17 @@ export default function Header({ title, user }: HeaderProps) {
         </div>
       </div>
     </header>
+
+    {/* Notification Center */}
+    <NotificationCenter
+      isOpen={showNotificationCenter}
+      onClose={() => {
+        setShowNotificationCenter(false)
+        fetchUnreadCount() // Refresh count when closing
+      }}
+      userRole={userRole}
+    />
+    </>
   )
 }
 
