@@ -96,9 +96,9 @@ export function DashboardSkeleton() {
 
       <div className="min-h-screen bg-gray-100 dark:bg-gray-900 md:ml-56">
       {/* Header Skeleton */}
-      <div className="h-14 sm:h-16 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between px-3 sm:px-4 md:px-6">
-        <Skeleton className="h-6 w-32" />
-        <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
+      <div className="h-14 sm:h-16 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 flex items-center px-3 sm:px-4 md:px-6 relative">
+        <Skeleton className="h-4 sm:h-5 md:h-6 w-20 sm:w-24 md:w-32 absolute left-1/2 sm:left-0 transform -translate-x-1/2 sm:translate-x-0" />
+        <div className="flex items-center gap-2 sm:gap-3 md:gap-4 ml-auto">
           <Skeleton className="h-8 w-8 rounded" />
           <Skeleton className="h-8 w-8 rounded" />
           <Skeleton className="h-8 w-8 rounded-full" />

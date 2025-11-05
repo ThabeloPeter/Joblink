@@ -52,10 +52,10 @@ export default function Header({ title, user }: HeaderProps) {
 
   return (
     <>
-      <header className="h-14 sm:h-16 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between px-3 sm:px-4 md:px-6 sticky top-0 z-30">
-        <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100 truncate">{title}</h1>
+      <header className="h-14 sm:h-16 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 flex items-center px-3 sm:px-4 md:px-6 sticky top-0 z-30 relative">
+        <h1 className="text-sm sm:text-base md:text-xl lg:text-2xl font-bold text-gray-900 dark:text-gray-100 absolute left-1/2 sm:left-0 transform -translate-x-1/2 sm:translate-x-0 text-center sm:text-left">{title}</h1>
         
-        <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
+        <div className="flex items-center gap-2 sm:gap-3 md:gap-4 ml-auto">
           {/* Search */}
           <div className="relative hidden lg:block">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400 dark:text-gray-500" />
