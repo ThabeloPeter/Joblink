@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(arrayBuffer)
 
     // Upload to Supabase Storage
-    const { data: uploadData, error: uploadError } = await adminSupabase.storage
+    const { error: uploadError } = await adminSupabase.storage
       .from('job-photos')
       .upload(fileName, buffer, {
         cacheControl: '3600',
