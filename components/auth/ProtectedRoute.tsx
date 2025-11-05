@@ -21,39 +21,48 @@ export default function ProtectedRoute({
 
   useEffect(() => {
     const checkAuth = async () => {
-      const token = getAuthToken()
-      
-      if (!token) {
-        router.push(redirectTo)
-        return
-      }
-
-      const user = await getCurrentUser()
-      
-      if (!user) {
-        removeAuthToken()
-        router.push(redirectTo)
-        return
-      }
-
-      // Check if user has required role
-      if (allowedRoles.length > 0) {
-        const hasRole = allowedRoles.includes(user.role as 'admin' | 'company' | 'provider')
-        if (!hasRole) {
-          // Redirect based on user's role
-          if (isAdmin(user)) {
-            router.push('/admin')
-          } else if (isCompanyUser(user)) {
-            router.push('/company')
-          } else {
-            router.push(redirectTo)
-          }
+      try {
+        const token = getAuthToken()
+        
+        if (!token) {
+          router.push(redirectTo)
           return
         }
-      }
 
-      setIsAuthorized(true)
-      setIsLoading(false)
+        const user = await getCurrentUser()
+        
+        if (!user) {
+          // Only remove token if we're sure it's invalid
+          // Don't remove it if it's just a network error
+          console.error('Failed to get current user - token may be invalid')
+          removeAuthToken()
+          router.push(redirectTo)
+          return
+        }
+
+        // Check if user has required role
+        if (allowedRoles.length > 0) {
+          const hasRole = allowedRoles.includes(user.role as 'admin' | 'company' | 'provider')
+          if (!hasRole) {
+            // Redirect based on user's role
+            if (isAdmin(user)) {
+              router.push('/admin')
+            } else if (isCompanyUser(user)) {
+              router.push('/company')
+            } else {
+              router.push(redirectTo)
+            }
+            return
+          }
+        }
+
+        setIsAuthorized(true)
+        setIsLoading(false)
+      } catch (error) {
+        console.error('Auth check error:', error)
+        setIsLoading(false)
+        router.push(redirectTo)
+      }
     }
 
     checkAuth()

@@ -78,18 +78,20 @@ export default function AuthPage() {
       // Store session token in localStorage (or better, use httpOnly cookies)
       if (result.session?.access_token) {
         localStorage.setItem('supabase_token', result.session.access_token)
+        // Wait a moment to ensure token is stored before redirect
+        await new Promise(resolve => setTimeout(resolve, 100))
       }
 
       toast.success('Login successful!')
       
-      // Redirect based on role
+      // Redirect based on role - use window.location for a full page reload to ensure auth state is fresh
       const role = result.user?.role
       if (role === 'admin') {
-        router.push('/admin')
+        window.location.href = '/admin'
       } else if (role === 'company') {
-        router.push('/company')
+        window.location.href = '/company'
       } else {
-        router.push('/company') // Default for providers (mobile app)
+        window.location.href = '/company' // Default for providers (mobile app)
       }
     } catch {
       toast.error('Login failed. Please try again.')
