@@ -447,28 +447,29 @@ export default function ProviderJobCardsPage() {
             completedAt: selectedJobCard.completedAt,
           }}
         />
+      )}
 
-        {/* Confirmation Modal */}
-        {pendingAction && (
-          <ConfirmActionModal
-            isOpen={showConfirmModal}
-            onClose={() => {
-              setShowConfirmModal(false)
-              setPendingAction(null)
-            }}
-            onConfirm={handleConfirmAction}
-            title={pendingAction.status === 'accepted' ? 'Accept Job Card?' : 'Decline Job Card?'}
-            message={
-              pendingAction.status === 'accepted'
-                ? 'Are you sure you want to accept this job card? You will be able to start working on it once accepted.'
-                : 'Are you sure you want to decline this job card? This action cannot be undone. The company will be notified.'
-            }
-            confirmLabel={pendingAction.status === 'accepted' ? 'Accept' : 'Decline'}
-            type={pendingAction.status === 'accepted' ? 'accept' : 'decline'}
-            isLoading={isUpdating}
-          />
-        )}
-      </div>
-    )
-  }
+      {/* Confirmation Modal */}
+      {pendingAction && (
+        <ConfirmActionModal
+          isOpen={showConfirmModal}
+          onClose={() => {
+            setShowConfirmModal(false)
+            setPendingAction(null)
+          }}
+          onConfirm={handleConfirmAction}
+          title={pendingAction.status === 'accepted' ? 'Accept Job Card?' : 'Decline Job Card?'}
+          message={
+            pendingAction.status === 'accepted'
+              ? 'Are you sure you want to accept this job card? You will be able to start working on it once accepted.'
+              : 'Are you sure you want to decline this job card? This action cannot be undone. The company will be notified.'
+          }
+          confirmLabel={pendingAction.status === 'accepted' ? 'Accept' : 'Decline'}
+          type={pendingAction.status === 'accepted' ? 'accept' : 'decline'}
+          isLoading={isUpdating}
+        />
+      )}
+    </div>
+  )
+}
 
