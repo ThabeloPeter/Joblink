@@ -23,6 +23,7 @@ interface JobCard {
   dueDate: string
   createdAt: string
   completedAt: string | null
+  auditedAt?: string | null
 }
 
 export default function ProviderJobCardsPage() {
@@ -410,9 +411,17 @@ export default function ProviderJobCardsPage() {
                         )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusColors[job.status as keyof typeof statusColors] || 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'}`}>
-                          {job.status.replace('_', ' ')}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusColors[job.status as keyof typeof statusColors] || 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'}`}>
+                            {job.status.replace('_', ' ')}
+                          </span>
+                          {job.status === 'completed' && job.auditedAt && (
+                            <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full text-xs font-medium flex items-center gap-1">
+                              <CheckCircle className="w-3 h-3" />
+                              Audited
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right">
                         <div className="flex items-center justify-end gap-2">

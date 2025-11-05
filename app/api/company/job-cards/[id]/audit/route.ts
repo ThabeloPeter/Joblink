@@ -81,6 +81,22 @@ export async function POST(
       )
     }
 
+    // Update job card to mark as audited
+    const { error: updateError } = await supabase
+      .from('job_cards')
+      .update({
+        audited_at: new Date().toISOString(),
+      })
+      .eq('id', id)
+
+    if (updateError) {
+      console.error('Error updating job card audit status:', updateError)
+      return NextResponse.json(
+        { error: 'Failed to update audit status', details: updateError.message },
+        { status: 500 }
+      )
+    }
+
     const provider = Array.isArray(jobCard.service_providers) 
       ? jobCard.service_providers[0] 
       : jobCard.service_providers

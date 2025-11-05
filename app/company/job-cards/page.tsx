@@ -23,6 +23,7 @@ interface JobCard {
   createdAt: string
   dueDate: string
   completedAt: string | null
+  auditedAt?: string | null
   completionNotes?: string | null
   completionImages?: string[] | null
 }
@@ -402,11 +403,20 @@ export default function JobCardsPage() {
 
               {/* Status and Actions */}
               <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
-                <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                  statusColors[job.status as keyof typeof statusColors]
-                }`}>
-                  {job.status.replace('_', ' ')}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                    statusColors[job.status as keyof typeof statusColors]
+                  }`}>
+                    {job.status === 'completed' && job.auditedAt 
+                      ? 'Completed & Audited' 
+                      : job.status.replace('_', ' ')}
+                  </span>
+                  {job.status === 'completed' && job.auditedAt && (
+                    <span className="text-xs text-green-600 dark:text-green-400 font-medium">
+                      ✓ Audited
+                    </span>
+                  )}
+                </div>
                 <button
                   onClick={() => handleViewDetails(job)}
                   className="text-gray-900 dark:text-gray-100 hover:text-gray-700 dark:hover:text-gray-300 text-sm font-medium uppercase tracking-wide"

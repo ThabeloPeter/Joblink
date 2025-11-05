@@ -1,7 +1,7 @@
 'use client'
 
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Calendar, MapPin, User as UserIcon, Building2, FileText } from 'lucide-react'
+import { X, Calendar, MapPin, User as UserIcon, Building2, FileText, CheckCircle } from 'lucide-react'
 
 interface JobCard {
   id: string
@@ -15,6 +15,7 @@ interface JobCard {
   createdAt: string
   dueDate: string
   completedAt: string | null
+  auditedAt?: string | null
 }
 
 interface ViewJobCardModalProps {
@@ -212,14 +213,22 @@ export default function ViewJobCardModal({
                     <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide mb-2">
                       Status
                     </p>
-                    <span
-                      className={`inline-block px-3 py-1.5 border border-gray-300 dark:border-gray-700 text-xs font-medium uppercase tracking-wide ${
-                        statusColors[jobCard.status as keyof typeof statusColors] || 
-                        'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
-                      }`}
-                    >
-                      {statusLabels[jobCard.status as keyof typeof statusLabels] || jobCard.status}
-                    </span>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span
+                        className={`inline-block px-3 py-1.5 border border-gray-300 dark:border-gray-700 text-xs font-medium uppercase tracking-wide ${
+                          statusColors[jobCard.status as keyof typeof statusColors] || 
+                          'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+                        }`}
+                      >
+                        {statusLabels[jobCard.status as keyof typeof statusLabels] || jobCard.status}
+                      </span>
+                      {jobCard.status === 'completed' && jobCard.auditedAt && (
+                        <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-medium uppercase tracking-wide">
+                          <CheckCircle className="w-3 h-3" />
+                          Audited
+                        </span>
+                      )}
+                    </div>
                   </div>
 
                   <div className="p-4 border border-gray-300 dark:border-gray-700">
@@ -240,7 +249,7 @@ export default function ViewJobCardModal({
                 </div>
 
                 {/* Additional Info */}
-                {(jobCard.createdAt || jobCard.completedAt) && (
+                {(jobCard.createdAt || jobCard.completedAt || jobCard.auditedAt) && (
                   <div className="pt-4 border-t border-gray-200 dark:border-gray-700 space-y-2">
                     {jobCard.createdAt && (
                       <div className="flex items-center justify-between text-sm">
@@ -255,6 +264,17 @@ export default function ViewJobCardModal({
                         <span className="text-gray-600 dark:text-gray-400">Completed:</span>
                         <span className="text-gray-900 dark:text-gray-100 font-medium">
                           {jobCard.completedAt}
+                        </span>
+                      </div>
+                    )}
+                    {jobCard.auditedAt && (
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-600 dark:text-gray-400 flex items-center gap-1">
+                          <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
+                          Audited:
+                        </span>
+                        <span className="text-gray-900 dark:text-gray-100 font-medium">
+                          {jobCard.auditedAt}
                         </span>
                       </div>
                     )}

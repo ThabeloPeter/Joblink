@@ -61,6 +61,7 @@ export async function GET(request: NextRequest) {
         created_at,
         updated_at,
         completed_at,
+        audited_at,
         companies!job_cards_company_id_fkey(
           id,
           name
@@ -93,6 +94,7 @@ export async function GET(request: NextRequest) {
         dueDate: job.due_date || '',
         createdAt: job.created_at,
         completedAt: job.completed_at,
+        auditedAt: job.audited_at || null,
       }
     })
 
