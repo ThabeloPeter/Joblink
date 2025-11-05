@@ -4,13 +4,14 @@ import { useState, useEffect } from 'react'
 import Header from '@/components/dashboard/Header'
 import { Settings, Save, Bell, Database, Mail, Shield } from 'lucide-react'
 import { useNotify } from '@/components/ui/NotificationProvider'
-import { getAuthToken, getCurrentUser } from '@/lib/auth'
+import { getCurrentUser } from '@/lib/auth'
+import { User } from '@/lib/types/user'
 
 export default function AdminSettingsPage() {
   const notify = useNotify()
   const [isSaving, setIsSaving] = useState(false)
   const [loading, setLoading] = useState(true)
-  const [currentUser, setCurrentUser] = useState<any>(null)
+  const [currentUser, setCurrentUser] = useState<User | null>(null)
 
   // General Settings
   const [platformName, setPlatformName] = useState('JobLink')
@@ -44,9 +45,10 @@ export default function AdminSettingsPage() {
           const emailDomain = user.email.split('@')[1]
           setSupportEmail(`support@${emailDomain}`)
         }
-      } catch (error: any) {
+      } catch (error) {
         console.error('Error loading admin data:', error)
-        notify.showError(error.message || 'Failed to load settings')
+        const errorMessage = error instanceof Error ? error.message : 'Failed to load settings'
+        notify.showError(errorMessage)
       } finally {
         setLoading(false)
       }

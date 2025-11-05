@@ -75,7 +75,17 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const companies = profile.companies as any
+    interface CompanyData {
+      id: string
+      name: string
+      email: string
+      contact_person: string
+      phone: string
+      address?: string
+      status: string
+    }
+    
+    const companies = profile.companies as CompanyData | CompanyData[] | null
     const companyData = Array.isArray(companies) ? companies[0] : companies
 
     if (!companyData) {
@@ -164,13 +174,23 @@ export async function PUT(request: NextRequest) {
       )
     }
 
-    const updateData: any = {}
+    interface UpdateData {
+      name?: string
+      email?: string
+      contact_person?: string
+      phone?: string
+      address?: string
+      updated_at: string
+    }
+    
+    const updateData: UpdateData = {
+      updated_at: new Date().toISOString(),
+    }
     if (validatedData.name !== undefined) updateData.name = validatedData.name
     if (validatedData.email !== undefined) updateData.email = validatedData.email
     if (validatedData.contactPerson !== undefined) updateData.contact_person = validatedData.contactPerson
     if (validatedData.phone !== undefined) updateData.phone = validatedData.phone
     if (validatedData.address !== undefined) updateData.address = validatedData.address
-    updateData.updated_at = new Date().toISOString()
 
     const { data: updatedCompany, error: updateError } = await profileSupabase
       .from('companies')
@@ -202,10 +222,11 @@ export async function PUT(request: NextRequest) {
         status: updatedCompany.status,
       },
     })
-  } catch (error: any) {
-    if (error.name === 'ZodError') {
+  } catch (error) {
+    if (error instanceof Error && error.name === 'ZodError') {
+      const zodError = error as Error & { errors?: unknown }
       return NextResponse.json(
-        { error: 'Validation error', details: error.errors },
+        { error: 'Validation error', details: zodError.errors },
         { status: 400 }
       )
     }

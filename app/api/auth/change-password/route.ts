@@ -86,10 +86,11 @@ export async function POST(request: NextRequest) {
       success: true,
       message: 'Password updated successfully',
     })
-  } catch (error: any) {
-    if (error.name === 'ZodError') {
+  } catch (error) {
+    if (error instanceof Error && error.name === 'ZodError') {
+      const zodError = error as Error & { errors?: unknown }
       return NextResponse.json(
-        { error: 'Validation error', details: error.errors },
+        { error: 'Validation error', details: zodError.errors },
         { status: 400 }
       )
     }

@@ -5,12 +5,13 @@ import Header from '@/components/dashboard/Header'
 import { Save, Building2, Mail, Phone, User, Lock, Bell, Shield } from 'lucide-react'
 import { useNotify } from '@/components/ui/NotificationProvider'
 import { getAuthToken, getCurrentUser } from '@/lib/auth'
+import { User } from '@/lib/types/user'
 
 export default function SettingsPage() {
   const notify = useNotify()
   const [isSaving, setIsSaving] = useState(false)
   const [loading, setLoading] = useState(true)
-  const [currentUser, setCurrentUser] = useState<any>(null)
+  const [currentUser, setCurrentUser] = useState<User | null>(null)
   
   const [companyInfo, setCompanyInfo] = useState({
     name: '',
@@ -71,9 +72,10 @@ export default function SettingsPage() {
             address: data.company.address || '',
           })
         }
-      } catch (error: any) {
+      } catch (error) {
         console.error('Error loading settings:', error)
-        notify.showError(error.message || 'Failed to load settings')
+        const errorMessage = error instanceof Error ? error.message : 'Failed to load settings'
+        notify.showError(errorMessage)
       } finally {
         setLoading(false)
       }
@@ -106,9 +108,10 @@ export default function SettingsPage() {
       }
 
       notify.showSuccess('Settings saved successfully')
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error saving settings:', error)
-      notify.showError(error.message || 'Failed to save settings')
+      const errorMessage = error instanceof Error ? error.message : 'Failed to save settings'
+      notify.showError(errorMessage)
     } finally {
       setIsSaving(false)
     }
@@ -156,9 +159,10 @@ export default function SettingsPage() {
         newPassword: '',
         confirmPassword: '',
       })
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error changing password:', error)
-      notify.showError(error.message || 'Failed to change password')
+      const errorMessage = error instanceof Error ? error.message : 'Failed to change password'
+      notify.showError(errorMessage)
     } finally {
       setIsSaving(false)
     }
