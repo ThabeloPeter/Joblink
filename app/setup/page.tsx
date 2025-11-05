@@ -85,7 +85,7 @@ export default function SetupPage() {
               Create Admin User
             </h1>
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              Set up your first administrator account for JobLink
+              Set up your first administrator account for ServiceLink
             </p>
           </div>
 
@@ -101,7 +101,7 @@ export default function SetupPage() {
                 <input
                   type="email"
                   {...register('email')}
-                  placeholder="admin@joblink.com"
+                  placeholder="admin@servicelink.com"
                   className={`w-full pl-10 pr-4 py-2.5 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 font-medium ${
                     errors.email
                       ? 'border-red-300 dark:border-red-700'

@@ -287,7 +287,7 @@ export default function ProviderJobCardsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
       <Header 
         title="My Job Cards"
         user={user ? {

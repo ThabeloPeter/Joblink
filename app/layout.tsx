@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "JobLink - Job Ticket Management Platform",
+  title: "ServiceLink - Service Provider Management Platform",
   description: "Streamline your workflow with real-time tracking, instant notifications, and seamless collaboration between companies and service providers.",
 };
 

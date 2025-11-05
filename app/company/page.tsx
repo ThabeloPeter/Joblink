@@ -98,7 +98,7 @@ export default function CompanyDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
       <Header 
         title="Dashboard"
         user={user ? {

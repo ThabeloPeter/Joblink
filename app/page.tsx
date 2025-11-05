@@ -199,7 +199,7 @@ export default function LandingPage() {
                 Ready to Get Started?
               </h2>
               <p className="text-base sm:text-lg md:text-xl text-gray-700 text-center max-w-[600px] leading-relaxed px-2">
-                Join companies that trust JobLink to manage their service providers and streamline their job card processes.
+                Join companies that trust ServiceLink to manage their service providers and streamline their job card processes.
               </p>
               <button 
                 className="w-full sm:w-auto px-8 sm:px-10 py-4 sm:py-6 bg-gray-900 text-white text-sm sm:text-base font-semibold rounded-lg hover:bg-gray-800 active:scale-[0.97] transition-transform mt-2"
@@ -221,10 +221,10 @@ export default function LandingPage() {
       >
         <div className="max-w-[1200px] w-full flex flex-col items-center gap-3 sm:gap-4">
           <div className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-            JobLink
+            ServiceLink
           </div>
           <div className="text-xs sm:text-sm text-white/60 font-normal text-center px-4">
-            © 2024 JobLink. All rights reserved.
+            © 2024 ServiceLink. All rights reserved.
           </div>
           <div className="flex gap-4 sm:gap-6 mt-2 flex-wrap justify-center px-4">
             <button className="text-xs sm:text-sm text-white/60 font-normal bg-transparent border-none hover:text-white/80 cursor-pointer">

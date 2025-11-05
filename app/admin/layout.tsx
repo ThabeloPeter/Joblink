@@ -14,13 +14,13 @@ export default function AdminLayout({
 
   return (
     <ProtectedRoute allowedRoles={['admin']} redirectTo="/auth">
-      <div className="flex min-h-screen bg-gray-50 dark:bg-gray-950">
+      <div className="flex min-h-screen bg-gray-100 dark:bg-gray-900">
         {/* Sidebar - hidden on mobile by default, always visible on desktop */}
         <div className={`${sidebarVisible ? 'block' : 'hidden'} md:block`}>
           <Sidebar userRole="admin" onToggle={() => setSidebarVisible(false)} />
         </div>
         
-        <div className="flex-1 md:ml-64 transition-all duration-300 w-full">
+        <div className="flex-1 md:ml-56 transition-all duration-300 w-full">
           {/* Mobile menu button */}
           {!sidebarVisible && (
             <button

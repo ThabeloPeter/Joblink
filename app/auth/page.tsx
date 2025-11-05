@@ -177,7 +177,7 @@ export default function AuthPage() {
             <h1 className="text-5xl font-bold mb-6 leading-tight">
               Welcome to{' '}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
-                JobLink
+                ServiceLink
               </span>
             </h1>
             <p className="text-xl text-gray-300 mb-8 leading-relaxed">

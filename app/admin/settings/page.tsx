@@ -14,8 +14,8 @@ export default function AdminSettingsPage() {
   const [currentUser, setCurrentUser] = useState<User | null>(null)
 
   // General Settings
-  const [platformName, setPlatformName] = useState('JobLink')
-  const [supportEmail, setSupportEmail] = useState('support@joblink.com')
+  const [platformName, setPlatformName] = useState('ServiceLink')
+  const [supportEmail, setSupportEmail] = useState('support@servicelink.com')
   const [maxJobCardsPerCompany, setMaxJobCardsPerCompany] = useState('1000')
 
   // Notification Settings
@@ -73,19 +73,19 @@ export default function AdminSettingsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-gray-600 dark:text-gray-400">Loading settings...</div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
       <Header
         title="Settings"
         user={{
           name: currentUser?.email?.split('@')[0] || 'Admin User',
-          email: currentUser?.email || 'admin@joblink.com',
+          email: currentUser?.email || 'admin@servicelink.com',
           role: 'Administrator',
         }}
       />
