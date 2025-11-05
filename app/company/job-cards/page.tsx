@@ -475,6 +475,7 @@ export default function JobCardsPage() {
             images: selectedJobCard.completionImages || null,
           }}
           completedAt={selectedJobCard.completedAt}
+          auditedAt={selectedJobCard.auditedAt || null}
         />
       )}
     </div>

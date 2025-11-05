@@ -81,6 +81,18 @@ export async function POST(
       )
     }
 
+    // Check if job card has already been audited
+    if (jobCard.audited_at) {
+      return NextResponse.json(
+        { 
+          error: 'Job card already audited',
+          details: 'This job card has already been audited and approved.',
+          auditedAt: jobCard.audited_at
+        },
+        { status: 400 }
+      )
+    }
+
     // Update job card to mark as audited
     const { error: updateError } = await supabase
       .from('job_cards')

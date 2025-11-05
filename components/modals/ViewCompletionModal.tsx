@@ -20,6 +20,7 @@ interface ViewCompletionModalProps {
   providerName: string
   completionData: CompletionData
   completedAt: string | null
+  auditedAt?: string | null
 }
 
 export default function ViewCompletionModal({
@@ -30,6 +31,7 @@ export default function ViewCompletionModal({
   providerName,
   completionData,
   completedAt,
+  auditedAt,
 }: ViewCompletionModalProps) {
   const notify = useNotify()
   const [isAuditing, setIsAuditing] = useState(false)
@@ -144,6 +146,17 @@ export default function ViewCompletionModal({
                       {completedAt || 'N/A'}
                     </p>
                   </div>
+                  {auditedAt && (
+                    <div>
+                      <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide mb-1">
+                        Audited At
+                      </p>
+                      <p className="text-sm font-medium text-green-600 dark:text-green-400 flex items-center gap-1">
+                        <CheckCircle className="w-4 h-4" />
+                        {auditedAt}
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 {/* Completion Notes */}
@@ -214,15 +227,22 @@ export default function ViewCompletionModal({
                   >
                     Close
                   </button>
-                  <button
-                    type="button"
-                    onClick={handleAudit}
-                    disabled={isAuditing}
-                    className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <CheckCircle className="w-5 h-5" />
-                    {isAuditing ? 'Auditing...' : 'Audit & Approve'}
-                  </button>
+                  {auditedAt ? (
+                    <div className="flex items-center gap-2 px-6 py-3 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-lg">
+                      <CheckCircle className="w-5 h-5" />
+                      <span className="font-medium">Already Audited</span>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={handleAudit}
+                      disabled={isAuditing}
+                      className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <CheckCircle className="w-5 h-5" />
+                      {isAuditing ? 'Auditing...' : 'Audit & Approve'}
+                    </button>
+                  )}
                 </div>
               </div>
             </motion.div>
