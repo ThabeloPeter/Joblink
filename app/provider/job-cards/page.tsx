@@ -9,6 +9,7 @@ import { getCurrentUser } from '@/lib/auth'
 import { User } from '@/lib/types/user'
 import ViewJobCardModal from '@/components/modals/ViewJobCardModal'
 import ConfirmActionModal from '@/components/modals/ConfirmActionModal'
+import CompleteJobCardModal from '@/components/modals/CompleteJobCardModal'
 
 interface JobCard {
   id: string
@@ -36,6 +37,8 @@ export default function ProviderJobCardsPage() {
   const [showConfirmModal, setShowConfirmModal] = useState(false)
   const [pendingAction, setPendingAction] = useState<{ jobCardId: string; status: 'accepted' | 'declined' } | null>(null)
   const [isUpdating, setIsUpdating] = useState(false)
+  const [showCompleteModal, setShowCompleteModal] = useState(false)
+  const [jobCardToComplete, setJobCardToComplete] = useState<JobCard | null>(null)
 
   useEffect(() => {
     async function loadUser() {
@@ -158,7 +161,7 @@ export default function ProviderJobCardsPage() {
     }
   }
 
-  const handleStatusUpdate = async (jobCardId: string, newStatus: 'in_progress' | 'completed') => {
+  const handleStatusUpdate = async (jobCardId: string, newStatus: 'in_progress') => {
     try {
       const token = getAuthToken()
       if (!token) {
@@ -185,21 +188,70 @@ export default function ProviderJobCardsPage() {
       // Update local state
       setJobCards((prev) =>
         prev.map((job) =>
-          job.id === jobCardId
-            ? { ...job, status: newStatus, completedAt: newStatus === 'completed' ? new Date().toISOString() : job.completedAt }
+          job.id === jobCardId ? { ...job, status: newStatus } : job
+        )
+      )
+
+      notify.showSuccess('Job card marked as in progress', 'Success')
+    } catch (error) {
+      console.error('Error updating job card:', error)
+      notify.showError('Failed to update job card. Please try again.', 'Error')
+    }
+  }
+
+  const handleCompleteClick = (jobCard: JobCard) => {
+    setJobCardToComplete(jobCard)
+    setShowCompleteModal(true)
+  }
+
+  const handleCompleteJobCard = async (data: { notes: string; images: string[] }) => {
+    if (!jobCardToComplete) return
+
+    setIsUpdating(true)
+    try {
+      const token = getAuthToken()
+      if (!token) {
+        notify.showError('Authentication required', 'Error')
+        return
+      }
+
+      const response = await fetch(`/api/provider/job-cards/${jobCardToComplete.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          status: 'completed',
+          notes: data.notes,
+          images: data.images,
+        }),
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        notify.showError(result.error || 'Failed to complete job card', 'Error')
+        return
+      }
+
+      // Update local state
+      setJobCards((prev) =>
+        prev.map((job) =>
+          job.id === jobCardToComplete.id
+            ? { ...job, status: 'completed', completedAt: new Date().toISOString() }
             : job
         )
       )
 
-      const statusMessages: Record<string, string> = {
-        in_progress: 'Job card marked as in progress',
-        completed: 'Job card marked as completed',
-      }
-
-      notify.showSuccess(statusMessages[newStatus] || 'Job card updated', 'Success')
+      notify.showSuccess('Job card completed successfully!', 'Success')
+      setShowCompleteModal(false)
+      setJobCardToComplete(null)
     } catch (error) {
-      console.error('Error updating job card:', error)
-      notify.showError('Failed to update job card. Please try again.', 'Error')
+      console.error('Error completing job card:', error)
+      notify.showError('Failed to complete job card. Please try again.', 'Error')
+    } finally {
+      setIsUpdating(false)
     }
   }
 
@@ -399,7 +451,7 @@ export default function ProviderJobCardsPage() {
                           )}
                           {job.status === 'in_progress' && (
                             <button
-                              onClick={() => handleStatusUpdate(job.id, 'completed')}
+                              onClick={() => handleCompleteClick(job)}
                               className="px-3 py-1.5 text-sm font-medium text-green-700 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 border border-green-300 dark:border-green-700 hover:border-green-400 dark:hover:border-green-600 transition-colors uppercase tracking-wide flex items-center gap-1"
                             >
                               <CheckCircle className="w-4 h-4" />
@@ -465,6 +517,21 @@ export default function ProviderJobCardsPage() {
           }
           confirmLabel={pendingAction.status === 'accepted' ? 'Accept' : 'Decline'}
           type={pendingAction.status === 'accepted' ? 'accept' : 'decline'}
+          isLoading={isUpdating}
+        />
+      )}
+
+      {/* Complete Job Card Modal */}
+      {jobCardToComplete && (
+        <CompleteJobCardModal
+          isOpen={showCompleteModal}
+          onClose={() => {
+            setShowCompleteModal(false)
+            setJobCardToComplete(null)
+          }}
+          onComplete={handleCompleteJobCard}
+          jobCardTitle={jobCardToComplete.title}
+          jobCardId={jobCardToComplete.id}
           isLoading={isUpdating}
         />
       )}

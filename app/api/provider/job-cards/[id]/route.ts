@@ -6,6 +6,7 @@ import { createActivityLog } from '@/lib/activity-log'
 const updateStatusSchema = z.object({
   status: z.enum(['accepted', 'declined', 'in_progress', 'completed']),
   notes: z.string().optional(),
+  images: z.array(z.string()).optional(),
 })
 
 export async function PUT(
@@ -82,14 +83,29 @@ export async function PUT(
       status: string
       updated_at: string
       completed_at?: string | null
+      completion_notes?: string
+      completion_images?: string[]
     } = {
       status: validatedData.status,
       updated_at: new Date().toISOString(),
     }
 
-    // Set completed_at if status is completed
+    // Set completed_at and completion data if status is completed
     if (validatedData.status === 'completed') {
+      // Require notes when completing
+      if (!validatedData.notes || !validatedData.notes.trim()) {
+        return NextResponse.json(
+          { error: 'Completion notes are required' },
+          { status: 400 }
+        )
+      }
+      
       updateData.completed_at = new Date().toISOString()
+      updateData.completion_notes = validatedData.notes.trim()
+      
+      if (validatedData.images && validatedData.images.length > 0) {
+        updateData.completion_images = validatedData.images
+      }
     } else if (jobCard.status === 'completed') {
       // If changing from completed to another status, clear completed_at
       updateData.completed_at = null
@@ -122,7 +138,7 @@ export async function PUT(
     await createActivityLog({
       type: 'job_card',
       title: `Job Card ${statusLabels[validatedData.status] || 'updated'}`,
-      message: `Provider ${providerRecord.name} ${statusLabels[validatedData.status] || 'updated'} job card "${jobCard.title}"`,
+      message: `Provider ${providerRecord.name} ${statusLabels[validatedData.status] || 'updated'} job card "${jobCard.title}"${validatedData.notes ? ` with notes` : ''}${validatedData.images && validatedData.images.length > 0 ? ` with ${validatedData.images.length} image(s)` : ''}`,
       entityType: 'job_card',
       entityId: id,
       actorType: 'provider',
@@ -133,6 +149,7 @@ export async function PUT(
         previousStatus: jobCard.status,
         newStatus: validatedData.status,
         notes: validatedData.notes,
+        imagesCount: validatedData.images?.length || 0,
       },
     })
 
