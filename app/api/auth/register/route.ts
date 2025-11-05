@@ -6,11 +6,41 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
 const registerSchema = z.object({
-  companyName: z.string().min(2, 'Company name must be at least 2 characters'),
-  contactPerson: z.string().min(2, 'Contact person name required'),
-  email: z.string().email('Invalid email address'),
-  phone: z.string().min(10, 'Valid phone number required'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  companyName: z
+    .string()
+    .min(2, 'Company name must be at least 2 characters')
+    .max(100, 'Company name must not exceed 100 characters')
+    .regex(/^[a-zA-Z0-9\s&.,'-]+$/, 'Company name contains invalid characters')
+    .trim(),
+  contactPerson: z
+    .string()
+    .min(2, 'Contact person name must be at least 2 characters')
+    .max(50, 'Contact person name must not exceed 50 characters')
+    .regex(/^[a-zA-Z\s'-]+$/, 'Contact person name can only contain letters, spaces, hyphens, and apostrophes')
+    .trim(),
+  email: z
+    .string()
+    .email('Invalid email address')
+    .toLowerCase()
+    .max(100, 'Email must not exceed 100 characters')
+    .regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'Invalid email format'),
+  phone: z
+    .string()
+    .transform((val) => val.replace(/\D/g, '')) // Remove all non-digits
+    .refine((val) => val.length === 10, {
+      message: 'Phone number must be exactly 10 digits',
+    })
+    .refine((val) => /^[0-9]{10}$/.test(val), {
+      message: 'Phone number must contain only digits',
+    }),
+  password: z
+    .string()
+    .min(8, 'Password must be at least 8 characters')
+    .max(100, 'Password must not exceed 100 characters')
+    .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+    .regex(/[0-9]/, 'Password must contain at least one number')
+    .regex(/[^a-zA-Z0-9]/, 'Password must contain at least one special character'),
   confirmPassword: z.string(),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",

@@ -15,11 +15,41 @@ const loginSchema = z.object({
 })
 
 const registerSchema = z.object({
-  companyName: z.string().min(2, 'Company name must be at least 2 characters'),
-  contactPerson: z.string().min(2, 'Contact person name required'),
-  email: z.string().email('Invalid email address'),
-  phone: z.string().min(10, 'Valid phone number required'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  companyName: z
+    .string()
+    .min(2, 'Company name must be at least 2 characters')
+    .max(100, 'Company name must not exceed 100 characters')
+    .regex(/^[a-zA-Z0-9\s&.,'-]+$/, 'Company name contains invalid characters')
+    .trim(),
+  contactPerson: z
+    .string()
+    .min(2, 'Contact person name must be at least 2 characters')
+    .max(50, 'Contact person name must not exceed 50 characters')
+    .regex(/^[a-zA-Z\s'-]+$/, 'Contact person name can only contain letters, spaces, hyphens, and apostrophes')
+    .trim(),
+  email: z
+    .string()
+    .email('Invalid email address')
+    .toLowerCase()
+    .max(100, 'Email must not exceed 100 characters')
+    .regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'Invalid email format'),
+  phone: z
+    .string()
+    .transform((val) => val.replace(/\D/g, '')) // Remove all non-digits
+    .refine((val) => val.length === 10, {
+      message: 'Phone number must be exactly 10 digits',
+    })
+    .refine((val) => /^[0-9]{10}$/.test(val), {
+      message: 'Phone number must contain only digits',
+    }),
+  password: z
+    .string()
+    .min(8, 'Password must be at least 8 characters')
+    .max(100, 'Password must not exceed 100 characters')
+    .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+    .regex(/[0-9]/, 'Password must contain at least one number')
+    .regex(/[^a-zA-Z0-9]/, 'Password must contain at least one special character'),
   confirmPassword: z.string(),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
@@ -334,6 +364,11 @@ export default function AuthPage() {
                               {registerForm.formState.errors.companyName.message}
                             </p>
                           )}
+                          {!registerForm.formState.errors.companyName && (
+                            <p className="mt-1 text-xs text-gray-500">
+                              2-100 characters, letters, numbers, and common punctuation only
+                            </p>
+                          )}
                         </div>
 
                         <div>
@@ -352,6 +387,11 @@ export default function AuthPage() {
                           {registerForm.formState.errors.contactPerson && (
                             <p className="mt-1 text-sm text-red-600">
                               {registerForm.formState.errors.contactPerson.message}
+                            </p>
+                          )}
+                          {!registerForm.formState.errors.contactPerson && (
+                            <p className="mt-1 text-xs text-gray-500">
+                              2-50 characters, letters and spaces only
                             </p>
                           )}
                         </div>
@@ -389,13 +429,25 @@ export default function AuthPage() {
                             <input
                               {...registerForm.register('phone')}
                               type="tel"
-                              placeholder="+1 234 567 8900"
+                              placeholder="0821234567"
+                              maxLength={10}
                               className="w-full pl-10 pr-4 py-3 border-2 border-gray-400 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none transition-all text-gray-900 font-medium placeholder:text-gray-500"
+                              onInput={(e) => {
+                                // Only allow digits
+                                const value = e.currentTarget.value.replace(/\D/g, '')
+                                e.currentTarget.value = value
+                                registerForm.setValue('phone', value, { shouldValidate: true })
+                              }}
                             />
                           </div>
                           {registerForm.formState.errors.phone && (
                             <p className="mt-1 text-sm text-red-600">
                               {registerForm.formState.errors.phone.message}
+                            </p>
+                          )}
+                          {!registerForm.formState.errors.phone && (
+                            <p className="mt-1 text-xs text-gray-500">
+                              Enter 10 digits (e.g., 0821234567)
                             </p>
                           )}
                         </div>
@@ -418,8 +470,25 @@ export default function AuthPage() {
                             />
                           </div>
                           {registerForm.formState.errors.password && (
-                            <p className="mt-1 text-sm text-red-600">
-                              {registerForm.formState.errors.password.message}
+                            <div className="mt-1">
+                              <p className="text-sm text-red-600">
+                                {registerForm.formState.errors.password.message}
+                              </p>
+                              <div className="mt-2 text-xs text-gray-600">
+                                <p className="font-medium mb-1">Password requirements:</p>
+                                <ul className="list-disc list-inside space-y-0.5">
+                                  <li>At least 8 characters</li>
+                                  <li>One uppercase letter</li>
+                                  <li>One lowercase letter</li>
+                                  <li>One number</li>
+                                  <li>One special character</li>
+                                </ul>
+                              </div>
+                            </div>
+                          )}
+                          {!registerForm.formState.errors.password && registerForm.watch('password') && (
+                            <p className="mt-1 text-xs text-gray-500">
+                              Password must meet all requirements above
                             </p>
                           )}
                         </div>
