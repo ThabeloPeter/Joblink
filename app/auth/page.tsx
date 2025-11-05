@@ -88,8 +88,10 @@ export default function AuthPage() {
         router.push('/admin')
       } else if (role === 'company') {
         router.push('/company')
+      } else if (role === 'provider') {
+        router.push('/provider')
       } else {
-        router.push('/company') // Default for providers (mobile app)
+        router.push('/company') // Default fallback
       }
     } catch {
       toast.error('Login failed. Please try again.')

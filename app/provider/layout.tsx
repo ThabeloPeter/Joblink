@@ -5,7 +5,7 @@ import Sidebar from '@/components/dashboard/Sidebar'
 import ProtectedRoute from '@/components/auth/ProtectedRoute'
 import { Menu } from 'lucide-react'
 
-export default function CompanyLayout({
+export default function ProviderLayout({
   children,
 }: {
   children: React.ReactNode
@@ -13,9 +13,9 @@ export default function CompanyLayout({
   const [sidebarVisible, setSidebarVisible] = useState(true)
 
   return (
-    <ProtectedRoute allowedRoles={['company']} redirectTo="/auth">
+    <ProtectedRoute allowedRoles={['provider']} redirectTo="/auth">
       <div className="flex min-h-screen bg-gray-50 dark:bg-gray-950">
-        {sidebarVisible && <Sidebar userRole="company" onToggle={() => setSidebarVisible(false)} />}
+        {sidebarVisible && <Sidebar userRole="provider" onToggle={() => setSidebarVisible(false)} />}
         <div className={`flex-1 ${sidebarVisible ? 'ml-64' : ''} transition-all duration-300`}>
           {!sidebarVisible && (
             <button

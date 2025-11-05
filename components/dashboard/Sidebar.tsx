@@ -18,7 +18,7 @@ import clsx from 'clsx'
 import { removeAuthToken, getAuthToken } from '@/lib/auth'
 
 interface SidebarProps {
-  userRole: 'admin' | 'company'
+  userRole: 'admin' | 'company' | 'provider'
   onToggle?: () => void
 }
 
@@ -37,12 +37,26 @@ const companyNavItems = [
   { href: '/company/settings', icon: Settings, label: 'Settings' },
 ]
 
+const providerNavItems = [
+  { href: '/provider', icon: LayoutDashboard, label: 'Dashboard' },
+  { href: '/provider/job-cards', icon: ClipboardList, label: 'Job Cards' },
+  { href: '/provider/settings', icon: Settings, label: 'Settings' },
+]
+
 export default function Sidebar({ userRole, onToggle }: SidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
   const [isLoggingOut, setIsLoggingOut] = useState(false)
-  const navItems = userRole === 'admin' ? adminNavItems : companyNavItems
-  const basePath = userRole === 'admin' ? '/admin' : '/company'
+  const navItems = userRole === 'admin' 
+    ? adminNavItems 
+    : userRole === 'provider' 
+    ? providerNavItems 
+    : companyNavItems
+  const basePath = userRole === 'admin' 
+    ? '/admin' 
+    : userRole === 'provider' 
+    ? '/provider' 
+    : '/company'
 
   const handleLogout = async () => {
     setIsLoggingOut(true)
